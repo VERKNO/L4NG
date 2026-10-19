@@ -61,6 +61,8 @@
     score: "{c} of {n} correct ({p}%)", missed: "Skills to review", mark_missed: "Mark these as Learning", marked: "Marked as Learning.",
     new_exam: "New exam", correct_was: "Correct answer: {a}", unanswered: "Not answered", all_right: "Everything right. Well done!",
     skill: "Skill: {t}", exam_none: "The exam for this level is being written.",
+    fab_off: "Sync", fab_saving: "Saving…", fab_syncing: "Syncing…", fab_ok: "Synced", fab_offline: "Offline", fab_error: "Sync problem",
+    fab_title_on: "Tap to sync now",
     exam_best_time: "Best score: {b} of {n} ({p}%) in {t}", time_label: "Time", time_total: "Total time {t} · {a} per question on average",
     q_time: "Answered in {t}", q_time_slowest: "Answered in {t} (slowest)"
   };
@@ -102,12 +104,14 @@
   function lsSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 
   function clean(raw) {
-    var out = { s: {}, n: {}, t: 0, x: {} };
+    var out = { s: {}, n: {}, t: 0, x: {}, u: {} };
     if (!raw || typeof raw !== "object") return out;
     var s = raw.s || {}, n = raw.n || {};
     Object.keys(s).forEach(function (k) { var v = Number(s[k]); if (v === 1 || v === 2) out.s[k] = v; });
     Object.keys(n).forEach(function (k) { if (typeof n[k] === "string" && n[k].trim()) out.n[k] = n[k]; });
     out.t = Number(raw.t) || 0;
+    out.u = {};
+    if (raw.u && typeof raw.u === "object") Object.keys(raw.u).forEach(function (k) { var v = Number(raw.u[k]); if (v) out.u[k] = v; });
     if (raw.x && typeof raw.x === "object") Object.keys(raw.x).forEach(function (k) {
       var v = raw.x[k];
       if (v && typeof v.best === "number" && typeof v.total === "number") out.x[k] = { best: v.best, total: v.total, last: Number(v.last) || 0, t: Number(v.t) || 0, time: Number(v.time) || 0, lastTime: Number(v.lastTime) || 0 };
@@ -115,9 +119,41 @@
     return out;
   }
 
+  // ---------- per-item merge ----------
+  // Every status, note and exam result is one entry ("s:<topic>", "n:<topic>", "x:<level>").
+  // state.u[key] = when that entry last changed (also for removals), so two devices merge item by item.
+  function entries(st) {
+    var e = {};
+    Object.keys(st.s).forEach(function (k) { e["s:" + k] = String(st.s[k]); });
+    Object.keys(st.n).forEach(function (k) { e["n:" + k] = st.n[k]; });
+    Object.keys(st.x).forEach(function (k) { e["x:" + k] = JSON.stringify(st.x[k]); });
+    return e;
+  }
+  function sameEntries(a, b) { return JSON.stringify(entries(a)) === JSON.stringify(entries(b)); }
+  var lastSnap = {};
+  function snapNow() { lastSnap = entries(state); }
+  function merge(a, b) {
+    var ea = entries(a), eb = entries(b), out = { s: {}, n: {}, t: Math.max(a.t, b.t), x: {}, u: {} };
+    var keys = {};
+    [ea, eb, a.u, b.u].forEach(function (o) { Object.keys(o).forEach(function (k) { keys[k] = 1; }); });
+    Object.keys(keys).forEach(function (k) {
+      var ta = a.u[k] || (k in ea ? a.t : 0), tb = b.u[k] || (k in eb ? b.t : 0);
+      var useA = ta >= tb, src = useA ? a : b, e = useA ? ea : eb;
+      out.u[k] = Math.max(ta, tb);
+      if (!(k in e)) return; // newest change was a removal
+      var id = k.slice(2), kind = k[0];
+      if (kind === "s") out.s[id] = src.s[id]; else if (kind === "n") out.n[id] = src.n[id]; else if (kind === "x") out.x[id] = src.x[id];
+    });
+    return out;
+  }
+
   var saveTimer = null, saving = false, pending = false;
   function save() {
-    state.t = Date.now();
+    var now = Date.now(), cur = entries(state);
+    Object.keys(cur).forEach(function (k) { if (cur[k] !== lastSnap[k]) state.u[k] = now; });
+    Object.keys(lastSnap).forEach(function (k) { if (!(k in cur)) state.u[k] = now; });
+    lastSnap = cur;
+    state.t = now;
     lsSet(LS_KEY, state);
     gist.schedulePush();
     if (!cloud) return;
@@ -127,7 +163,7 @@
   function pushCloud() {
     if (saving) { pending = true; return; }
     saving = true;
-    cloud.ref.set({ s: state.s, n: state.n, t: state.t, x: state.x }).catch(function () {}).then(function () {
+    cloud.ref.set({ s: state.s, n: state.n, t: state.t, x: state.x, u: state.u }).catch(function () {}).then(function () {
       saving = false;
       if (pending) { pending = false; pushCloud(); }
     });
@@ -144,8 +180,12 @@
         return ref.get().then(function (snap) {
           cloud = { ref: ref };
           var remote = snap.exists ? clean(snap.data()) : null;
-          if (remote && remote.t >= state.t) { state = remote; lsSet(LS_KEY, state); render(); }
-          else if (state.t) pushCloud();
+          if (remote) {
+            var m = merge(state, remote);
+            if (!sameEntries(m, state)) { state = m; lsSet(LS_KEY, state); snapNow(); render(); }
+            else { state.u = m.u; snapNow(); }
+            if (!sameEntries(m, remote)) pushCloud();
+          } else if (state.t) pushCloud();
           synced = true; applyStatic();
         });
       });
@@ -159,6 +199,8 @@
     var API = "https://api.github.com";
     var cfg = lsGet(KEY) || null;
     var timer = null, busy = false, again = false, dirty = false, lastMsg = null;
+    var phase = "ok"; // pending | syncing | ok | offline | error
+    function setPhase(p) { phase = p; fab(); }
 
     function on() { return !!(cfg && cfg.token && cfg.gistId); }
     function call(method, path, body) {
@@ -179,32 +221,36 @@
         return r.json();
       });
     }
-    function stamp() { cfg.last = Date.now(); lsSet(KEY, cfg); lastMsg = null; show(); }
+    function stamp() { cfg.last = Date.now(); lsSet(KEY, cfg); lastMsg = null; setPhase("ok"); show(); }
     function fail(e) {
       lastMsg = e && e.auth ? "g_auth" : e && e.missing ? "g_missing" : "g_offline";
+      setPhase(lastMsg === "g_offline" ? "offline" : "error");
       status(ui(lastMsg));
     }
 
     function push() {
       if (!on()) return Promise.resolve();
       if (busy) { again = true; return Promise.resolve(); }
-      busy = true;
+      busy = true; setPhase("syncing");
       var files = {}; files[FILE] = { content: JSON.stringify(state) };
       return call("PATCH", "/gists/" + cfg.gistId, { files: files })
         .then(function () { dirty = false; stamp(); }, function (e) { dirty = true; fail(e); })
         .then(function () { busy = false; if (again) { again = false; push(); } });
     }
+    var pulling = false;
     function pull() {
-      if (!on()) return Promise.resolve();
+      if (!on() || pulling || busy) return Promise.resolve();
+      pulling = true; setPhase("syncing");
       return call("GET", "/gists/" + cfg.gistId).then(function (g) {
         var f = g.files && g.files[FILE];
         var remote = f ? clean(JSON.parse(f.content || "{}")) : null;
-        if (remote && remote.t > state.t) {
-          state = remote; lsSet(LS_KEY, state); render(); stamp();
-        } else if (dirty || !remote || state.t > remote.t) {
-          return push();
-        } else stamp();
-      }).catch(fail);
+        if (!remote) return push();
+        var m = merge(state, remote);
+        if (!sameEntries(m, state)) { state = m; lsSet(LS_KEY, state); snapNow(); render(); }
+        else { state.u = m.u; lsSet(LS_KEY, state); snapNow(); }
+        if (dirty || !sameEntries(m, remote)) return push();
+        stamp();
+      }).catch(fail).then(function () { pulling = false; if (phase === "syncing") setPhase("ok"); });
     }
     function connect(token) {
       cfg = { token: token.trim() };
@@ -236,6 +282,7 @@
       document.getElementById("gist-on").hidden = !on();
       var badge = document.getElementById("sync-badge");
       if (badge) badge.hidden = !on();
+      fab();
       if (lastMsg) status(ui(lastMsg));
       else if (on()) {
         var when = cfg.last ? new Date(cfg.last).toLocaleString(lang === "id" ? "id-ID" : [], { dateStyle: "medium", timeStyle: "short" }) : ui("g_not_yet");
@@ -245,14 +292,35 @@
 
     return {
       on: on, push: push, pull: pull, connect: connect, disconnect: disconnect, show: show, status: status,
+      phase: function () { return phase; }, last: function () { return cfg && cfg.last; },
       schedulePush: function () {
         if (!on()) return;
-        dirty = true;
+        dirty = true; setPhase("pending");
         clearTimeout(timer);
         timer = setTimeout(push, 1500);
       }
     };
   })();
+
+  // ---------- floating sync button (always visible) ----------
+  var fabTimer = null;
+  function fab() {
+    var b = document.getElementById("syncfab");
+    if (!b) return;
+    var ph = gist.on() ? gist.phase() : "off";
+    clearTimeout(fabTimer);
+    // quiet indicator: hidden when sync is off or all is fine; "Synced" flashes briefly; problems stay visible
+    if (window.claude || ph === "off") { b.hidden = true; return; }
+    b.hidden = false;
+    if (ph === "ok") fabTimer = setTimeout(function () { b.hidden = true; }, 2500);
+    var map = { off: ["☁", "fab_off"], pending: ["●", "fab_saving"], syncing: ["⟳", "fab_syncing"], ok: ["✓", "fab_ok"], offline: ["⚠", "fab_offline"], error: ["!", "fab_error"] };
+    var m = map[ph] || map.ok;
+    b.setAttribute("data-ph", ph);
+    b.innerHTML = '<span class="fi" aria-hidden="true">' + m[0] + '</span><span class="ft">' + esc(ui(m[1])) + '</span>';
+    var last = gist.last();
+    b.title = ph === "ok" && last ? ui("g_synced", { when: new Date(last).toLocaleTimeString(lang === "id" ? "id-ID" : [], { hour: "2-digit", minute: "2-digit" }) }) : ui("fab_title_on");
+    b.setAttribute("aria-label", b.title);
+  }
 
   // ---------- helpers ----------
   function esc(s) {
@@ -672,6 +740,8 @@
       if (!tok) { gist.status(ui("g_paste")); return; }
       b.disabled = true;
       gist.connect(tok).then(function () { b.disabled = false; document.getElementById("gist-token").value = ""; });
+    } else if (act === "syncfab") {
+      gist.pull(); // retry now
     } else if (act === "gist-sync") {
       gist.status(ui("g_syncing"));
       gist.pull();
@@ -683,13 +753,13 @@
         setTimeout(function () { b.removeAttribute("data-armed"); b.textContent = ui("reset"); }, 4000);
         return;
       }
-      state = { s: {}, n: {}, t: 0, x: {} }; save(); render();
+      state = { s: {}, n: {}, t: 0, x: {}, u: state.u }; save(); render();
       b.removeAttribute("data-armed"); b.textContent = ui("reset");
       msg(ui("erased"));
     } else if (act === "lang") {
       lang = b.getAttribute("data-v");
       lsSet(LS_LANG, lang);
-      applyStatic(); renderFaq(); render(); gist.show();
+      applyStatic(); renderFaq(); render(); gist.show(); fab();
     } else if (act === "exam-start") {
       var Ls = DATA.levels.filter(function (x) { return x.id === id; })[0];
       exams[id] = buildExam(Ls);
@@ -764,6 +834,7 @@
 
   // ---------- boot ----------
   state = clean(lsGet(LS_KEY));
+  snapNow();
   (lsGet(LS_OPEN) || []).forEach(function (id) { if (findTopic(id)) open[id] = true; });
   applyStatic();
   renderFaq();
@@ -778,6 +849,8 @@
     gist.pull();
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") gist.pull(); });
     window.addEventListener("online", function () { gist.pull(); });
+    // keep devices in step while the app is open
+    setInterval(function () { if (document.visibilityState === "visible") gist.pull(); }, 60000);
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       try { navigator.serviceWorker.register("sw.js").catch(function () {}); } catch (e) {}
     }

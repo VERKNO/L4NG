@@ -330,3 +330,20 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 .exam-time { margin: 0; }
 .qtime { font-variant-numeric: tabular-nums; }
 .qtime.slow { color: var(--learning); font-weight: 600; }
+
+/* Sync status indicator (quiet; shows only while saving or when there is a problem) */
+.syncfab {
+  position: fixed; z-index: 20;
+  right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+.syncfab .fi { width: 1em; text-align: center; }
+.syncfab[data-ph="ok"] { color: var(--known); border-color: var(--known); }
+.syncfab[data-ph="offline"] { color: var(--learning); border-color: var(--learning); }
+.syncfab[data-ph="error"] { color: var(--hacek); border-color: var(--hacek); }
+.syncfab[data-ph="syncing"] .fi { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .syncfab[data-ph="syncing"] .fi { animation: none; } }
+.syncfab[hidden] { display: none; }

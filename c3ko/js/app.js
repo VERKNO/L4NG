@@ -870,9 +870,10 @@
   renderFaq();
   render();
 
-  // back to the L4NG app list (only when hosted inside L4NG)
+  // back to the L4NG app list: visible in the HTML from the first paint (so the page never jumps);
+  // hidden only when the app runs outside L4NG (dev copy, artifact, file://)
   var homeA = document.getElementById("home");
-  if (homeA && /\/l4ng\//i.test(location.pathname)) homeA.hidden = false;
+  if (homeA && !/\/l4ng\//i.test(location.pathname)) homeA.hidden = true;
 
   // first visit: ask which language to learn in (both questions shown in their own language)
   if (!lsGet(LS_LANG)) {

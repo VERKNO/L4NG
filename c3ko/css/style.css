@@ -369,3 +369,5 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 .exam-result .verdict { margin: 4px 0; font-weight: 600; }
 .exam-result .verdict.pass { color: var(--known); }
 .exam-result .verdict.fail { color: var(--learning); }
+/* keep the top of the page still while the app fills in */
+.masthead { overflow-anchor: none; padding-top: max(32px, calc(env(safe-area-inset-top, 0px) + 16px)); }

@@ -279,7 +279,7 @@
         var files = {}; files[FILE] = { content: JSON.stringify(state) };
         return call("POST", "/gists", { description: ED.name + " progress (used by the " + ED.name + " app)", public: false, files: files })
           .then(function (g) { cfg.gistId = g.id; lsSet(KEY, cfg); stamp(); });
-      }).then(function () { show(); }, function (e) {
+      }).then(function () { show(); track("sync-on"); }, function (e) {
         cfg = null; lsSet(KEY, null); show();
         lastMsg = e && e.auth ? "g_badtoken" : "g_offline_connect";
         status(ui(lastMsg));
@@ -544,6 +544,16 @@
       }).join("") + '</details>';
   }
 
+  // anonymous usage events (GoatCounter, loaded only on the public site by index.html); no personal data
+  function track(ev) {
+    var tries = 0;
+    (function go() {
+      var g = window.goatcounter;
+      if (g && g.count) { try { g.count({ path: "/l4ng/" + K + "/event/" + ev, title: ED.name + " " + ev, event: true }); } catch (e) {} }
+      else if (window.goatcounter && tries++ < 20) setTimeout(go, 500);
+    })();
+  }
+
   // front-page tip pointing to the optional GitHub sync; hidden once sync is on, when dismissed, or inside claude.ai
   function syncHint() {
     var h = document.getElementById("synchint"); if (!h) return;
@@ -805,10 +815,13 @@
       msg(ui("erased"));
     } else if (act === "lang") {
       lang = b.getAttribute("data-v");
+      var firstChoice = !lsGet(LS_LANG);
       lsSet(LS_LANG, lang);
+      track((firstChoice ? "ui-first-" : "ui-switch-") + lang);
       var lp = document.getElementById("langpick"); if (lp) lp.parentNode.removeChild(lp);
       applyStatic(); renderFaq(); render(); gist.show(); fab();
     } else if (act === "exam-start") {
+      track("exam-" + id.toLowerCase() + "-start");
       var Ls = DATA.levels.filter(function (x) { return x.id === id; })[0];
       exams[id] = buildExam(Ls);
       rerenderExam(id);
@@ -834,6 +847,7 @@
         state.x[id] = { best: c, total: ex2.qs.length, last: c, t: Date.now(), time: took, lastTime: took };
       else { prev.last = c; prev.t = Date.now(); prev.lastTime = took; }
       save();
+      track("exam-" + id.toLowerCase() + (c / ex2.qs.length >= EXAM_PASS ? "-pass" : "-fail"));
       rerenderExam(id);
       renderSummary();
       var box = document.querySelector('[data-x="exam-' + id + '"] .exam-result');
@@ -899,6 +913,8 @@
   if (homeA && !/\/l4ng\//i.test(location.pathname)) homeA.hidden = true;
 
   // first visit: ask which language to learn in (both questions shown in their own language)
+  if (lsGet(LS_LANG)) track("open-ui-" + lang);
+  window.addEventListener("appinstalled", function () { track("install"); });
   if (!lsGet(LS_LANG)) {
     var brandH = document.querySelector(".brand h1");
     var lp = document.createElement("div");

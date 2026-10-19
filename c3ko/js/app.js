@@ -16,6 +16,7 @@
   var LS_KEY = K + ".progress.v1";      // { s: {topicId: 0|1|2}, n: {topicId: "note"}, t: updatedAtMs }
   var LS_OPEN = K + ".open.v1";         // list of expanded topic ids (convenience only)
   var PASS = 0.8;                       // share of "Known" topics needed to count a level as reached
+  var EXAM_PASS = 0.7;                  // …or a best exam score of at least this share (pass mark)
 
   // ---------- language ----------
   // English UI text lives here; other languages come from js/lang-<code>.js (window.C3KO_LANG).
@@ -23,8 +24,10 @@
     home: "All apps",
     tagline: "Czech grammar, A1 to C2. Mark each topic as you learn it.",
     estimated: "Estimated level", reached: "Reached {lv}", working: "Working on {lv} {name}",
-    working_sub: "{known} of {total} {lv} topics known, {learning} in progress. A level counts as reached at {pass}% known.",
-    all_reached: "All levels reached", all_reached_sub: "Every level is at least {pass}% known.",
+    working_sub: "{known} of {total} {lv} topics known, {learning} in progress. Reach {lv} by scoring {exam}% in its exam, or by marking {pass}% of its topics Known.",
+    polish: "{n} {lv} topics are still Learning or New. Review them to make {lv} solid.",
+    passed_badge: "Exam passed ({p}%)", exam_pass: "Passed! {lv} counts as reached.", exam_fail: "Not passed yet: {pm}% needed. Review the skills below and try again.",
+    all_reached: "All levels reached", all_reached_sub: "Every level is passed.",
     chip_known: "{known}/{total} known", count: "{known} known · {learning} learning · {total} topics",
     search: "Search topics, e.g. genitive, aby, půl",
     f_all: "All", f_new: "New", f_learning: "Learning", f_known: "Known",
@@ -35,7 +38,7 @@
     how_to: "How to use this", review_title: "Putting it all together", review_prefix: "Review · ",
     review_ph: "Write your own sentence using this level's grammar…", note_badge: "• note",
     empty: "No topics match. Clear the search or pick another filter.",
-    footer: "Levels follow the usual CEFR order for Czech courses; exact placement varies between textbooks. A level counts as reached when 80% of its topics are marked Known.",
+    footer: "Levels follow the usual CEFR order for Czech courses; exact placement varies between textbooks. A level counts as reached when you score at least 70% in its exam, or mark 80% of its topics Known.",
     gist_h: "Sync with GitHub",
     gist_intro: "Keep progress the same on your phone and computer. It's saved in a secret gist in your own GitHub account; nothing goes into the app's repository.",
     gist_step1: '<a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=C3KO%20sync" target="_blank" rel="noopener">Create a GitHub token</a> with only the <b>gist</b> box ticked, and copy it.',
@@ -60,7 +63,7 @@
     words_title: "Verbs in {lv}", words_intro: "Verbs used at this level, grouped by infinitive ending. Irregular means the present stem changes or the verb doesn't follow its group's pattern.",
     regular: "Regular", irregular: "Irregular", col_inf: "Infinitive", col_ja: "já", col_oni: "oni", col_past: "Past (on)",
     col_meaning: "Meaning", col_note: "Note", none: "—",
-    exam_title: "Exam {lv}", exam_intro: "{n} multiple-choice questions picked at random from every skill in {lv}. Every exam is different.",
+    exam_title: "Exam {lv}", exam_intro: "{n} multiple-choice questions picked at random from every skill in {lv}. Every exam is different. Pass mark: {pm}%.",
     exam_best: "Best score: {b} of {n} ({p}%)", start: "Start exam", check: "Check answers", answered: "{a} of {n} answered",
     score: "{c} of {n} correct ({p}%)", missed: "Skills to review", mark_missed: "Mark these as Learning", marked: "Marked as Learning.",
     new_exam: "New exam", correct_was: "Correct answer: {a}", unanswered: "Not answered", all_right: "Everything right. Well done!",
@@ -347,11 +350,15 @@
     level.topics.forEach(function (t) { var v = st(t.id); if (v === 2) k++; else if (v === 1) l++; });
     return { known: k, learning: l, total: level.topics.length };
   }
+  function examPassed(level) {
+    var x = state.x[level.id];
+    return !!(x && x.total && x.best / x.total >= EXAM_PASS);
+  }
   function estimate() {
     var reached = null, working = DATA.levels[0];
     for (var i = 0; i < DATA.levels.length; i++) {
       var s = levelStats(DATA.levels[i]);
-      if (s.known / s.total >= PASS) { reached = DATA.levels[i]; working = DATA.levels[i + 1] || null; }
+      if (s.known / s.total >= PASS || examPassed(DATA.levels[i])) { reached = DATA.levels[i]; working = DATA.levels[i + 1] || null; }
       else { working = DATA.levels[i]; break; }
     }
     return { reached: reached, working: working };
@@ -372,22 +379,28 @@
     if (e.working) {
       var ws = levelStats(e.working);
       line.textContent = (e.reached ? ui("reached", { lv: e.reached.id }) + " · " : "") + ui("working", { lv: e.working.id, name: tr(e.working.name) });
-      sub.textContent = ui("working_sub", { known: ws.known, total: ws.total, lv: e.working.id, learning: ws.learning, pass: Math.round(PASS * 100) });
+      sub.textContent = ui("working_sub", { known: ws.known, total: ws.total, lv: e.working.id, learning: ws.learning, pass: Math.round(PASS * 100), exam: Math.round(EXAM_PASS * 100) });
     } else {
       line.textContent = ui("all_reached");
       sub.textContent = ui("all_reached_sub", { pass: Math.round(PASS * 100) });
     }
+    if (e.reached) { // passed, but topics left to polish (the yellow part)
+      var rs = levelStats(e.reached);
+      if (rs.known < rs.total) sub.textContent += " " + ui("polish", { n: rs.total - rs.known, lv: e.reached.id });
+    }
     document.getElementById("levels").innerHTML = DATA.levels.map(function (L) {
       var s = levelStats(L);
       var cur = e.working && e.working.id === L.id ? " current" : "";
-      return '<a class="chip' + cur + '" href="#' + L.id + '"><b>' + L.id + '</b>' + bar(s) +
+      var ok = examPassed(L);
+      return '<a class="chip' + cur + (ok ? ' passed' : '') + '" href="#' + L.id + '"><b>' + L.id + (ok ? ' <span class="pass-mark" title="' + esc(ui("passed_badge", { p: Math.round(100 * state.x[L.id].best / state.x[L.id].total) })) + '">✓</span>' : '') + '</b>' + bar(s) +
         '<small>' + ui("chip_known", { known: s.known, total: s.total }) + '</small></a>';
     }).join("");
     DATA.levels.forEach(function (L) {
       var s = levelStats(L);
       var c = document.getElementById("count-" + L.id);
       var b = document.getElementById("bar-" + L.id);
-      if (c) c.textContent = ui("count", { known: s.known, learning: s.learning, total: s.total });
+      if (c) c.textContent = ui("count", { known: s.known, learning: s.learning, total: s.total }) +
+        (examPassed(L) ? " · ✓ " + ui("passed_badge", { p: Math.round(100 * state.x[L.id].best / state.x[L.id].total) }) : "");
       if (b) b.innerHTML = bar(s);
     });
   }
@@ -605,7 +618,7 @@
       (best ? '<span class="xn">' + best.best + '/' + best.total + '</span>' : '') + '</summary>';
     if (!bank) return head + '<p class="xintro">' + esc(ui("exam_none")) + '</p></details>';
     var ex = exams[L.id];
-    var h = head + '<p class="xintro">' + esc(ui("exam_intro", { n: n, lv: L.id })) +
+    var h = head + '<p class="xintro">' + esc(ui("exam_intro", { n: n, lv: L.id, pm: Math.round(EXAM_PASS * 100) })) +
       (best ? ' ' + esc(ui(best.time ? "exam_best_time" : "exam_best", { b: best.best, n: best.total, p: Math.round(100 * best.best / best.total), t: dur(best.time) })) : '') + '</p>';
     if (!ex) return h + '<button type="button" class="tool primary" data-act="exam-start" data-id="' + L.id + '">' + esc(ui("start")) + '</button></details>';
     var correct = 0, missed = {};
@@ -614,7 +627,10 @@
       var p = Math.round(100 * correct / ex.qs.length);
       var ms = Object.keys(missed);
       var total = elapsed(ex);
+      var pass = correct / ex.qs.length >= EXAM_PASS, ls = levelStats(L);
       h += '<div class="exam-result" role="status"><p class="score">' + esc(ui("score", { c: correct, n: ex.qs.length, p: p })) + '</p>' +
+        '<p class="verdict ' + (pass ? 'pass' : 'fail') + '">' + esc(pass ? ui("exam_pass", { lv: L.id }) : ui("exam_fail", { pm: Math.round(EXAM_PASS * 100) })) + '</p>' +
+        (pass && ls.known < ls.total ? '<p class="xintro">' + esc(ui("polish", { n: ls.total - ls.known, lv: L.id })) + '</p>' : '') +
         '<p class="xintro exam-time">⏱ ' + esc(ui("time_total", { t: dur(total), a: dur(total / ex.qs.length) })) + '</p>' +
         (ms.length ? '<p class="xintro">' + esc(ui("missed")) + ':</p><p class="faq-links">' + ms.map(function (id) {
           var t = findTopic(id); return t ? '<button type="button" class="goto" data-act="goto" data-id="' + id + '">' + esc(t.review ? ui("review_title") : tr(t.title)) + '</button>' : '';
@@ -800,6 +816,7 @@
       else { prev.last = c; prev.t = Date.now(); prev.lastTime = took; }
       save();
       rerenderExam(id);
+      renderSummary();
       var box = document.querySelector('[data-x="exam-' + id + '"] .exam-result');
       if (box) box.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     } else if (act === "exam-mark") {

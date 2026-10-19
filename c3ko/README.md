@@ -35,7 +35,7 @@ It's free, needs no account, and works offline once installed.
 5. Finish a level with its **"Putting it all together"** lesson.
 6. Take the level's **Exam** to check yourself. Open **Verbs in …** for the level's verb list, and **Common confusions** (above A1) whenever two things feel the same.
 
-A level counts as **reached** when 80% of its topics are marked Known, in order (A1 before A2, and so on).
+A level counts as **reached** when you **pass its exam (70% or more)**, or when 80% of its topics are marked Known, in order (A1 before A2, and so on). Passing doesn't mean you're finished: topics still marked Learning or New stay visible, so you can review them and make the level solid.
 
 ### Language
 

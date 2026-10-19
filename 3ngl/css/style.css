@@ -364,3 +364,8 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 .langpick-box button b { font-size: 1.1rem; }
 .langpick-box button span { color: var(--muted); font-size: .92rem; }
 .langpick-box p { margin: 0; text-align: center; color: var(--muted); font-size: .75rem; }
+/* exam pass mark */
+.chip .pass-mark { color: var(--known); font-weight: 700; }
+.exam-result .verdict { margin: 4px 0; font-weight: 600; }
+.exam-result .verdict.pass { color: var(--known); }
+.exam-result .verdict.fail { color: var(--learning); }

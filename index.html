@@ -4,48 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>L4NG</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Young+Serif&display=swap">
+<meta name="description" content="Free grammar apps for learning languages, in English or Bahasa Indonesia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Young+Serif&display=swap">
 <style>
-:root { --bg:#f3f5f9; --surface:#fff; --ink:#172033; --muted:#586179; --line:#d8deea; --accent:#1d4e9e; --red:#c8232c; color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root { --bg:#0e1320; --surface:#161d2c; --ink:#e5e9f2; --muted:#9aa4b9; --line:#2a3448; --accent:#86acf0; --red:#f0727a; color-scheme: dark; } }
+:root { --bg:#f4f6fa; --surface:#fff; --ink:#141b2d; --muted:#5b6478; --line:#e1e6ef; --accent:#1d4e9e; --red:#c8232c; --chip:#eef2f8; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0c111c; --surface:#141b29; --ink:#e8ecf4; --muted:#98a2b6; --line:#232d40; --accent:#86acf0; --red:#f0727a; --chip:#1c2537; color-scheme: dark; } }
 * { box-sizing: border-box; }
-body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
-main { max-width:640px; margin:0 auto; padding-block:48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); display:grid; gap:24px; }
-h1 { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:2.6rem; margin:0; line-height:1; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased; }
+main { max-width:1080px; margin:0 auto; padding:clamp(28px, 6vw, 64px) max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); }
+header { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; margin-bottom:28px; }
+h1 { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:clamp(2.2rem, 6vw, 3rem); line-height:1; margin:0; letter-spacing:-.01em; }
 h1 span { color:var(--red); }
-p { margin:0; color:var(--muted); }
-a.app { display:grid; gap:4px; padding:18px 20px; background:var(--surface); border:1px solid var(--line); border-radius:12px; text-decoration:none; color:inherit; }
-a.app:hover, a.app:focus-visible { border-color:var(--accent); outline:none; }
-a.app b { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:1.5rem; }
-a.app b i { font-style:normal; color:var(--red); }
-a.app span { color:var(--muted); }
-.flag { display:inline-block; height:.62em; width:.93em; vertical-align:.06em; margin-right:.32em; border-radius:3px; box-shadow:0 0 0 1px var(--line); overflow:hidden; }
+.tag { margin:8px 0 0; color:var(--muted); max-width:46ch; }
+.pills { display:flex; flex-wrap:wrap; gap:6px; margin:0; padding:0; list-style:none; }
+.pills li { font-size:.8rem; font-weight:500; color:var(--muted); background:var(--chip); border-radius:999px; padding:4px 10px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:12px; }
+a.app { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:14px; text-decoration:none; color:inherit; transition:border-color .15s, transform .15s, box-shadow .15s; }
+a.app:hover, a.app:focus-visible { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 24px -14px rgba(20,30,60,.45); outline:none; }
+.fl { display:grid; place-items:center; width:46px; height:46px; border-radius:12px; background:var(--chip); }
+.flag { width:26px; height:18px; border-radius:3px; box-shadow:0 0 0 1px var(--line); }
+.txt { display:grid; min-width:0; }
+.txt b { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:1.3rem; line-height:1.2; }
+.txt b i { font-style:normal; color:var(--red); }
+.lang { font-size:.88rem; color:var(--ink); line-height:1.35; }
+.lang .sub { color:var(--muted); }
+.lv { font-size:.75rem; font-weight:600; color:var(--accent); background:var(--chip); border-radius:999px; padding:3px 9px; white-space:nowrap; }
+footer { margin-top:28px; color:var(--muted); font-size:.82rem; }
+@media (prefers-reduced-motion: reduce) { a.app { transition:none; } a.app:hover { transform:none; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>L4N<span>G</span></h1>
-  <p>Free apps for learning languages. No account needed, and they work offline once installed. · Aplikasi gratis untuk belajar bahasa, tanpa akun.</p>
-  <a class="app" href="c3ko/">
-    <b><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#fff"/><rect y="10" width="30" height="10" fill="#d7141a"/><path d="M0 0 15 10 0 20z" fill="#11457e"/></svg>C3K<i>O</i></b>
-    <span>Czech grammar A1–C2 · English / Bahasa Indonesia</span>
-  </a>
-  <a class="app" href="3ngl/">
-    <b><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#012169"/><path d="M0 0 30 20M30 0 0 20" stroke="#fff" stroke-width="4"/><path d="M0 0 30 20M30 0 0 20" stroke="#c8102e" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.6"/></svg>3NG<i>L</i></b>
-    <span>English grammar A1–C2 · English / Bahasa Indonesia</span>
-  </a>
-  <a class="app" href="e5pa/">
-    <b><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/></svg>E5P<i>A</i></b>
-    <span>Spanish grammar A1–B1 · English / Bahasa Indonesia</span>
-  </a>
-  <a class="app" href="fr4n/">
-    <b><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="10" height="20" fill="#0055a4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ef4135"/></svg>FR4<i>N</i></b>
-    <span>French grammar A1–B1 · English / Bahasa Indonesia</span>
-  </a>
-  <a class="app" href="d3ut/">
-    <b><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="7" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#dd0000"/><rect y="13.33" width="30" height="6.67" fill="#ffce00"/></svg>D3U<i>T</i></b>
-    <span>German grammar A1–B1 · English / Bahasa Indonesia</span>
-  </a>
+  <header>
+    <div>
+      <h1>L4N<span>G</span></h1>
+      <p class="tag">Free grammar apps for learning languages. · Aplikasi tata bahasa gratis untuk belajar bahasa.</p>
+    </div>
+    <ul class="pills" aria-label="Features">
+      <li>No account · Tanpa akun</li>
+      <li>Works offline · Bisa offline</li>
+      <li>EN / ID</li>
+    </ul>
+  </header>
+  <nav class="grid" aria-label="Apps">
+    <a class="app" href="c3ko/">
+      <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#fff"/><rect y="10" width="30" height="10" fill="#d7141a"/><path d="M0 0 15 10 0 20z" fill="#11457e"/></svg></span>
+      <span class="txt"><b>C3K<i>O</i></b><span class="lang">Czech <span class="sub">· Bahasa Ceko</span></span></span>
+      <span class="lv">A1–C2</span>
+    </a>
+    <a class="app" href="3ngl/">
+      <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#012169"/><path d="M0 0 30 20M30 0 0 20" stroke="#fff" stroke-width="4"/><path d="M0 0 30 20M30 0 0 20" stroke="#c8102e" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.6"/></svg></span>
+      <span class="txt"><b>3NG<i>L</i></b><span class="lang">English <span class="sub">· Bahasa Inggris</span></span></span>
+      <span class="lv">A1–C2</span>
+    </a>
+    <a class="app" href="e5pa/">
+      <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="20" fill="#aa151b"/><rect y="5" width="30" height="10" fill="#f1bf00"/></svg></span>
+      <span class="txt"><b>E5P<i>A</i></b><span class="lang">Spanish <span class="sub">· Bahasa Spanyol</span></span></span>
+      <span class="lv">A1–B1</span>
+    </a>
+    <a class="app" href="fr4n/">
+      <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="10" height="20" fill="#0055a4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ef4135"/></svg></span>
+      <span class="txt"><b>FR4<i>N</i></b><span class="lang">French <span class="sub">· Bahasa Prancis</span></span></span>
+      <span class="lv">A1–B1</span>
+    </a>
+    <a class="app" href="d3ut/">
+      <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="7" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#dd0000"/><rect y="13.33" width="30" height="6.67" fill="#ffce00"/></svg></span>
+      <span class="txt"><b>D3U<i>T</i></b><span class="lang">German <span class="sub">· Bahasa Jerman</span></span></span>
+      <span class="lv">A1–B1</span>
+    </a>
+  </nav>
+  <footer>Pick a language to start. Your progress stays on your device unless you turn on sync. · Pilih bahasa untuk mulai. Progres tersimpan di perangkatmu kecuali kamu menyalakan sinkron.</footer>
 </main>
 </body>
 </html>

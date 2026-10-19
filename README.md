@@ -15,3 +15,5 @@ Free apps for learning languages. No account, no ads, and they work offline once
 | **D3UT** | German grammar, A1–B1, in English or Bahasa Indonesia | https://verkno.github.io/L4NG/d3ut/ |
 
 Each app has its own folder with a README explaining how to use it.
+
+The site counts visits anonymously with [GoatCounter](https://www.goatcounter.com) (no cookies, no personal data).

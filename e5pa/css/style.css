@@ -125,7 +125,7 @@ button { cursor: pointer; }
 .gist { display: grid; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .gist #gist-off { display: grid; gap: 8px; }
 .gist #gist-off[hidden] { display: none; }
-.backup[hidden], .badge[hidden] { display: none; }
+.backup[hidden], .badge[hidden], #gist-on[hidden], .gist[hidden] { display: none; }
 .gist p { margin: 0; }
 .gist .search { flex: 1 1 220px; }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 2px; }
@@ -372,3 +372,11 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 .exam-result .verdict.fail { color: var(--learning); }
 /* keep the top of the page still while the app fills in */
 .masthead { overflow-anchor: none; padding-top: max(32px, calc(env(safe-area-inset-top, 0px) + 16px)); }
+/* flags next to the brand (tools/flags.py) */
+.flag { display: inline-block; height: .62em; width: .93em; vertical-align: .06em; margin-right: .3em; border-radius: 3px; box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
+/* optional-sync tip on the front page */
+.synchint { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; background: var(--surface); border: 1px dashed var(--accent); border-radius: var(--radius); font-size: .9rem; color: var(--muted); }
+.synchint[hidden] { display: none; }
+.synchint > span { flex: 1 1 260px; }
+.synchint .x { border: 0; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; padding: 4px 6px; cursor: pointer; border-radius: 6px; }
+.synchint .x:hover, .synchint .x:focus-visible { color: var(--ink); background: var(--surface-2); outline: none; }

@@ -40,9 +40,12 @@
     empty: "No topics match. Clear the search or pick another filter.",
     footer: "Levels follow the usual CEFR order for Czech courses; exact placement varies between textbooks. A level counts as reached when you score at least 70% in its exam, or mark 80% of its topics Known.",
     gist_h: "Sync with GitHub",
-    gist_intro: "Keep progress the same on your phone and computer. It's saved in a secret gist in your own GitHub account; nothing goes into the app's repository.",
-    gist_step1: '<a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=C3KO%20sync" target="_blank" rel="noopener">Create a GitHub token</a> with only the <b>gist</b> box ticked, and copy it.',
-    gist_step2: "Paste it below and connect. Do this once on each device.",
+    gist_intro: "Optional: keep your progress the same on every phone and computer. It's saved in a secret gist in your own free GitHub account; nothing goes into the app's repository. Without it, the app still works and saves progress on this device.",
+    gist_step0: '<a href="https://github.com/signup" target="_blank" rel="noopener">Create a free GitHub account</a> (skip this if you already have one).',
+    gist_step1: '<a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=L4NG%20sync" target="_blank" rel="noopener">Open this link</a> while signed in to GitHub. The <b>gist</b> box is already ticked: choose an expiration (e.g. <b>No expiration</b>), click <b>Generate token</b> at the bottom, and copy the token.',
+    gist_step2: "Paste the token below and press Connect. Do this once on each device.",
+    synchint: "Want your progress on every device? Connect free sync with a GitHub account. It takes about two minutes, and it's optional: the app works without it.",
+    synchint_btn: "Set up sync", synchint_close: "Hide this tip",
     connect: "Connect", sync_now: "Sync now", disconnect: "Disconnect", backup_h: "Backup",
     backup_intro: "Progress saves automatically on this device{sync}. To move it without GitHub, copy this text and restore it on the other device.",
     copy: "Copy backup", restore: "Restore from text", reset: "Reset progress", reset_confirm: "Click again to erase all progress",
@@ -102,6 +105,7 @@
     document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = ui(el.getAttribute("data-i18n")); });
     document.querySelectorAll("[data-i18n-html]").forEach(function (el) { el.innerHTML = ui(el.getAttribute("data-i18n-html")); });
     document.querySelectorAll("[data-i18n-ph]").forEach(function (el) { el.setAttribute("placeholder", ui(el.getAttribute("data-i18n-ph"))); });
+    document.querySelectorAll("[data-i18n-title]").forEach(function (el) { var t = ui(el.getAttribute("data-i18n-title")); el.setAttribute("title", t); el.setAttribute("aria-label", t); });
     var bi = document.getElementById("backup-intro");
     if (bi) bi.textContent = ui("backup_intro", { sync: synced ? ui("claude_sync") : "" });
     document.querySelectorAll('[data-act="lang"]').forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-v") === lang)); });
@@ -291,6 +295,7 @@
     function status(text) { var el = document.getElementById("gist-status"); if (el) el.textContent = text; }
     function show() {
       var box = document.getElementById("gist");
+      syncHint();
       if (!box) return;
       document.getElementById("gist-off").hidden = on();
       document.getElementById("gist-on").hidden = !on();
@@ -539,6 +544,12 @@
       }).join("") + '</details>';
   }
 
+  // front-page tip pointing to the optional GitHub sync; hidden once sync is on, when dismissed, or inside claude.ai
+  function syncHint() {
+    var h = document.getElementById("synchint"); if (!h) return;
+    h.hidden = !!window.claude || lsGet(K + ".synchint") === "off" || !!(lsGet(K + ".sync.v1") && /"token"/.test(lsGet(K + ".sync.v1") || ""));
+  }
+
   // ---------- words ----------
   var WORDS = window.C3KO_WORDS || {}, WGROUPS = window.C3KO_WORD_GROUPS || {};
   function wordsHtml(L) {
@@ -747,6 +758,13 @@
       if (act === "expand-all") document.querySelectorAll(".topic").forEach(function (li) { open[li.id.slice(2)] = true; });
       lsSet(LS_OPEN, Object.keys(open));
       render();
+    } else if (act === "synchint-open") {
+      var bp = document.getElementById("backup");
+      if (bp.hidden) { bp.hidden = false; document.getElementById("backup-text").value = JSON.stringify(state); msg(""); }
+      var gs = document.getElementById("gist"); if (gs) gs.scrollIntoView({ block: "start" });
+      var tk = document.getElementById("gist-token"); if (tk) tk.focus({ preventScroll: true });
+    } else if (act === "synchint-close") {
+      lsSet(K + ".synchint", "off"); syncHint();
     } else if (act === "backup") {
       var p = document.getElementById("backup");
       p.hidden = !p.hidden;
@@ -867,9 +885,13 @@
   state = clean(lsGet(LS_KEY));
   snapNow();
   (lsGet(LS_OPEN) || []).forEach(function (id) { if (findTopic(id)) open[id] = true; });
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // open at the top (header fully visible), not at an old position
   applyStatic();
   renderFaq();
   render();
+  if (!location.hash) window.scrollTo(0, 0);
+  syncHint();
+  window.addEventListener("pageshow", function (ev) { if (ev.persisted && !location.hash) window.scrollTo(0, 0); });
 
   // back to the L4NG app list: visible in the HTML from the first paint (so the page never jumps);
   // hidden only when the app runs outside L4NG (dev copy, artifact, file://)
@@ -887,7 +909,7 @@
       '<button type="button" data-act="lang" data-v="id" lang="id"><b>Bahasa Indonesia</b><span>Atau belajar dalam bahasa Indonesia?</span></button>' +
       '<p>EN / ID — you can switch any time · bisa diganti kapan saja</p></div>';
     document.body.appendChild(lp);
-    var firstBtn = lp.querySelector('[data-v="' + lang + '"]'); if (firstBtn) firstBtn.focus();
+    var firstBtn = lp.querySelector('[data-v="' + lang + '"]'); if (firstBtn) firstBtn.focus({ preventScroll: true });
   }
 
   if (window.claude) {

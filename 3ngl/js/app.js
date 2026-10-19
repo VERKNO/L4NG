@@ -20,6 +20,7 @@
   // ---------- language ----------
   // English UI text lives here; other languages come from js/lang-<code>.js (window.C3KO_LANG).
   var EN_UI = {
+    home: "All apps",
     tagline: "Czech grammar, A1 to C2. Mark each topic as you learn it.",
     estimated: "Estimated level", reached: "Reached {lv}", working: "Working on {lv} {name}",
     working_sub: "{known} of {total} {lv} topics known, {learning} in progress. A level counts as reached at {pass}% known.",
@@ -770,6 +771,7 @@
     } else if (act === "lang") {
       lang = b.getAttribute("data-v");
       lsSet(LS_LANG, lang);
+      var lp = document.getElementById("langpick"); if (lp) lp.parentNode.removeChild(lp);
       applyStatic(); renderFaq(); render(); gist.show(); fab();
     } else if (act === "exam-start") {
       var Ls = DATA.levels.filter(function (x) { return x.id === id; })[0];
@@ -850,6 +852,24 @@
   applyStatic();
   renderFaq();
   render();
+
+  // back to the L4NG app list (only when hosted inside L4NG)
+  var homeA = document.getElementById("home");
+  if (homeA && /\/l4ng\//i.test(location.pathname)) homeA.hidden = false;
+
+  // first visit: ask which language to learn in (both questions shown in their own language)
+  if (!lsGet(LS_LANG)) {
+    var brandH = document.querySelector(".brand h1");
+    var lp = document.createElement("div");
+    lp.className = "langpick"; lp.id = "langpick";
+    lp.setAttribute("role", "dialog"); lp.setAttribute("aria-modal", "true"); lp.setAttribute("aria-label", "Language / Bahasa");
+    lp.innerHTML = '<div class="langpick-box"><h2>' + (brandH ? brandH.innerHTML : "") + '</h2>' +
+      '<button type="button" data-act="lang" data-v="en" lang="en"><b>English</b><span>Do you want to learn in English?</span></button>' +
+      '<button type="button" data-act="lang" data-v="id" lang="id"><b>Bahasa Indonesia</b><span>Atau belajar dalam bahasa Indonesia?</span></button>' +
+      '<p>EN / ID — you can switch any time · bisa diganti kapan saja</p></div>';
+    document.body.appendChild(lp);
+    var firstBtn = lp.querySelector('[data-v="' + lang + '"]'); if (firstBtn) firstBtn.focus();
+  }
 
   if (window.claude) {
     // Running as a claude.ai Artifact: progress syncs through the claude.ai account instead.

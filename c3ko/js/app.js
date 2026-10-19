@@ -388,6 +388,7 @@
       var rs = levelStats(e.reached);
       if (rs.known < rs.total) sub.textContent += " " + ui("polish", { n: rs.total - rs.known, lv: e.reached.id });
     }
+    document.getElementById("levels").style.setProperty("--nlv", DATA.levels.length); // chip grid follows the number of levels
     document.getElementById("levels").innerHTML = DATA.levels.map(function (L) {
       var s = levelStats(L);
       var cur = e.working && e.working.id === L.id ? " current" : "";

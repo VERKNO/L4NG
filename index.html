@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L4NG</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Young+Serif&display=swap">
+<style>
+:root { --bg:#f3f5f9; --surface:#fff; --ink:#172033; --muted:#586179; --line:#d8deea; --accent:#1d4e9e; --red:#c8232c; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0e1320; --surface:#161d2c; --ink:#e5e9f2; --muted:#9aa4b9; --line:#2a3448; --accent:#86acf0; --red:#f0727a; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+main { max-width:640px; margin:0 auto; padding-block:48px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); display:grid; gap:24px; }
+h1 { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:2.6rem; margin:0; line-height:1; }
+h1 span { color:var(--red); }
+p { margin:0; color:var(--muted); }
+a.app { display:grid; gap:4px; padding:18px 20px; background:var(--surface); border:1px solid var(--line); border-radius:12px; text-decoration:none; color:inherit; }
+a.app:hover, a.app:focus-visible { border-color:var(--accent); outline:none; }
+a.app b { font-family:"Young Serif", Georgia, serif; font-weight:400; font-size:1.5rem; }
+a.app b i { font-style:normal; color:var(--red); }
+a.app span { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>L4N<span>G</span></h1>
+  <p>Free apps for learning languages. No account needed, and they work offline once installed. · Aplikasi gratis untuk belajar bahasa, tanpa akun.</p>
+  <a class="app" href="c3ko/">
+    <b>C3K<i>O</i></b>
+    <span>Czech grammar A1–C2 · English / Bahasa Indonesia</span>
+  </a>
+</main>
+</body>
+</html>

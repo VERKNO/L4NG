@@ -19,7 +19,7 @@
 <header class="wrap masthead">
   <a class="home" id="home" href="../"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="home">All apps</span></a>
   <div class="brand">
-    <h1>D3U<span class="mark">T</span></h1>
+    <h1><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="7" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#dd0000"/><rect y="13.33" width="30" height="6.67" fill="#ffce00"/></svg>D3U<span class="mark">T</span></h1>
     <p data-i18n="tagline">Czech grammar, A1 to C2. Mark each topic as you learn it.</p>
     <div class="lang" role="group" aria-label="Language / Bahasa">
       <button type="button" data-act="lang" data-v="en" aria-pressed="true" title="English">EN</button>
@@ -31,6 +31,7 @@
     <div><div class="label" data-i18n="estimated">Estimated level</div><div class="line" id="est-line"></div></div>
     <div class="sub" id="est-sub" style="color:var(--muted);font-size:.85rem"></div>
   </div>
+  <p class="synchint" id="synchint" hidden><span data-i18n="synchint">Want your progress on every device? Connect free sync with a GitHub account. It takes about two minutes, and it's optional: the app works without it.</span> <button type="button" class="tool primary" data-act="synchint-open" data-i18n="synchint_btn">Set up sync</button><button type="button" class="x" data-act="synchint-close" data-i18n-title="synchint_close" title="Hide this tip" aria-label="Hide this tip">×</button></p>
   <nav class="levels" id="levels" aria-label="Levels"></nav>
 </header>
 
@@ -56,8 +57,9 @@
       <div id="gist-off">
         <p class="msg" data-i18n="gist_intro">Keep progress the same on your phone and computer. It's saved in a secret gist in your own GitHub account; nothing goes into the app's repository.</p>
         <ol class="msg steps">
-          <li data-i18n-html="gist_step1"><a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=C3KO%20sync" target="_blank" rel="noopener">Create a GitHub token</a> with only the <b>gist</b> box ticked, and copy it.</li>
-          <li data-i18n="gist_step2">Paste it below and connect. Do this once on each device.</li>
+          <li data-i18n-html="gist_step0"></li>
+          <li data-i18n-html="gist_step1"></li>
+          <li data-i18n="gist_step2"></li>
         </ol>
         <div class="row">
           <input class="search" id="gist-token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub token">

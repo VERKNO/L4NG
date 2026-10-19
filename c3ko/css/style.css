@@ -347,3 +347,20 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .syncfab[data-ph="syncing"] .fi { animation: none; } }
 .syncfab[hidden] { display: none; }
+.sentence .en:empty { display: none; }
+
+/* back to the app list (L4NG) */
+.home { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 600; color: var(--muted); text-decoration: none; padding: 4px 12px 4px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.home:hover, .home:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+.home[hidden] { display: none; }
+.home svg { width: 14px; height: 14px; }
+/* first-visit language choice */
+.langpick { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(14, 19, 32, .55); backdrop-filter: blur(3px); }
+.langpick-box { width: 100%; max-width: 400px; display: grid; gap: 12px; padding: 28px 20px 20px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
+.langpick-box h2 { margin: 0 0 6px; text-align: center; font-family: "Young Serif", Georgia, serif; font-weight: 400; font-size: 2.4rem; line-height: 1; }
+.langpick-box h2 .mark { color: var(--hacek); }
+.langpick-box button { display: grid; gap: 2px; padding: 14px 16px; text-align: left; font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+.langpick-box button:hover, .langpick-box button:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.langpick-box button b { font-size: 1.1rem; }
+.langpick-box button span { color: var(--muted); font-size: .92rem; }
+.langpick-box p { margin: 0; text-align: center; color: var(--muted); font-size: .75rem; }

@@ -2,6 +2,7 @@
 window.C3KO_LANG = window.C3KO_LANG || {};
 window.C3KO_LANG.id = {
 "ui": {
+"home": "Semua aplikasi",
 "tagline": "Tata bahasa Ceko, A1 sampai C2. Tandai setiap topik saat kamu mempelajarinya.",
 "estimated": "Perkiraan level",
 "reached": "Sudah mencapai {lv}",

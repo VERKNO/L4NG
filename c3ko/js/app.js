@@ -2,6 +2,9 @@
 (function () {
   "use strict";
 
+  // Edition settings (js/edition.js). Two editions can share one website, so storage names use ED.key.
+  var ED = window.C3KO_EDITION || { key: "c3ko", target: "cs", name: "C3KO" };
+  var K = ED.key, TL = ED.target;
   var DATA = window.C3KO_DATA;
   // Append each level's review lesson as its last, trackable topic.
   var REVIEWS = window.C3KO_REVIEWS || {};
@@ -10,13 +13,14 @@
     if (!r || L.topics.some(function (t) { return t.review; })) return;
     L.topics.push({ id: L.id.toLowerCase() + "-review", title: "Putting it all together", what: r.what, review: true, sentences: r.sentences });
   });
-  var LS_KEY = "c3ko.progress.v1";      // { s: {topicId: 0|1|2}, n: {topicId: "note"}, t: updatedAtMs }
-  var LS_OPEN = "c3ko.open.v1";         // list of expanded topic ids (convenience only)
+  var LS_KEY = K + ".progress.v1";      // { s: {topicId: 0|1|2}, n: {topicId: "note"}, t: updatedAtMs }
+  var LS_OPEN = K + ".open.v1";         // list of expanded topic ids (convenience only)
   var PASS = 0.8;                       // share of "Known" topics needed to count a level as reached
 
   // ---------- language ----------
   // English UI text lives here; other languages come from js/lang-<code>.js (window.C3KO_LANG).
   var EN_UI = {
+    home: "All apps",
     tagline: "Czech grammar, A1 to C2. Mark each topic as you learn it.",
     estimated: "Estimated level", reached: "Reached {lv}", working: "Working on {lv} {name}",
     working_sub: "{known} of {total} {lv} topics known, {learning} in progress. A level counts as reached at {pass}% known.",
@@ -67,12 +71,17 @@
     q_time: "Answered in {t}", q_time_slowest: "Answered in {t} (slowest)"
   };
   var LANGS = window.C3KO_LANG || {};
-  var LS_LANG = "c3ko.lang";
+  if (ED.ui) {
+    Object.keys(ED.ui.en || {}).forEach(function (k) { EN_UI[k] = ED.ui.en[k]; });
+    if (LANGS.id && ED.ui.id) Object.keys(ED.ui.id).forEach(function (k) { LANGS.id.ui[k] = ED.ui.id[k]; });
+  }
+  var LS_LANG = K + ".lang";
   var lang = lsGet(LS_LANG) || (/^id\b/i.test(navigator.language || "") ? "id" : "en");
   if (lang !== "en" && !LANGS[lang]) lang = "en";
   var synced = false; // true when the claude.ai account sync is active
 
   function tr(s) {
+    if (Array.isArray(s)) return L2(s);
     if (!s || lang === "en") return s;
     var d = LANGS[lang].t;
     return Object.prototype.hasOwnProperty.call(d, s) ? d[s] : s;
@@ -83,6 +92,8 @@
   }
   function labels() { return [ui("s_new"), ui("s_learning"), ui("s_known")]; }
   function L2(x) { return Array.isArray(x) ? (lang === "id" && x[1] ? x[1] : x[0]) : x; }
+  // translations of target-language examples: an edition may show them only in one UI language (ED.gloss)
+  function gloss(x) { return ED.gloss && lang !== ED.gloss ? "" : tr(x); }
   function applyStatic() {
     document.documentElement.lang = lang;
     document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = ui(el.getAttribute("data-i18n")); });
@@ -194,8 +205,8 @@
 
   // ---------- optional sync to a secret GitHub gist (not used inside claude.ai) ----------
   var gist = (function () {
-    var KEY = "c3ko.sync.v1";              // { token, gistId, last }
-    var FILE = "c3ko-progress.json";
+    var KEY = K + ".sync.v1";              // { token, gistId, last }
+    var FILE = K + "-progress.json";
     var API = "https://api.github.com";
     var cfg = lsGet(KEY) || null;
     var timer = null, busy = false, again = false, dirty = false, lastMsg = null;
@@ -259,7 +270,7 @@
         var found = list.filter(function (g) { return g.files && g.files[FILE]; })[0];
         if (found) { cfg.gistId = found.id; lsSet(KEY, cfg); return pull(); }
         var files = {}; files[FILE] = { content: JSON.stringify(state) };
-        return call("POST", "/gists", { description: "C3KO progress (used by the C3KO app)", public: false, files: files })
+        return call("POST", "/gists", { description: ED.name + " progress (used by the " + ED.name + " app)", public: false, files: files })
           .then(function (g) { cfg.gistId = g.id; lsSet(KEY, cfg); stamp(); });
       }).then(function () { show(); }, function (e) {
         cfg = null; lsSet(KEY, null); show();
@@ -418,7 +429,7 @@
         '</tr></thead><tbody>' +
         b.rows.map(function (r) {
           return '<tr>' + r.map(function (x, i) {
-            return i === 0 ? '<th scope="row">' + cell(tr(x)) + '</th>' : '<td lang="cs">' + cell(tr(x)) + '</td>';
+            return i === 0 ? '<th scope="row">' + cell(tr(x)) + '</th>' : '<td lang="' + TL + '">' + cell(tr(x)) + '</td>';
           }).join("") + '</tr>';
         }).join("") +
         '</tbody></table></div>' +
@@ -442,12 +453,12 @@
       var rows = s.parts.map(function (p, i) {
         var t2 = p[2] ? findTopic(p[2]) : null;
         return '<li class="c' + (i % 5) + '"><span class="num">' + (i + 1) + '</span>' +
-          '<div class="pt"><b lang="cs">' + esc(p[0]) + '</b><span>' + esc(tr(p[1])) + '</span>' +
+          '<div class="pt"><b lang="' + TL + '">' + esc(p[0]) + '</b><span>' + esc(tr(p[1])) + '</span>' +
           (t2 ? '<button type="button" class="goto" data-act="goto" data-id="' + t2.id + '">' + esc(tr(t2.title)) + ' →</button>' : '') +
           '</div></li>';
       }).join("");
-      return '<li class="sentence"><p class="line" lang="cs">' + line + '</p>' +
-        '<p class="en">' + esc(tr(s.en)) + '</p><ul class="parts">' + rows + '</ul></li>';
+      return '<li class="sentence"><p class="line" lang="' + TL + '">' + line + '</p>' +
+        '<p class="en">' + esc(gloss(s.en)) + '</p><ul class="parts">' + rows + '</ul></li>';
     }).join("") + '</ol>';
   }
 
@@ -464,7 +475,7 @@
     if (t.pattern) h += '<div class="patterns">' + patternHtml(t.pattern) + '</div>';
     if (t.examples && t.examples.length) {
       h += '<div><h3>' + ui("examples") + '</h3><dl class="examples">' + t.examples.map(function (x) {
-        return '<dt lang="cs">' + esc(x[0]) + '</dt><dd>' + esc(tr(x[1])) + '</dd>';
+        return '<dt lang="' + TL + '">' + esc(x[0]) + '</dt><dd>' + esc(gloss(x[1])) + '</dd>';
       }).join("") + '</dl></div>';
     }
     if (t.tip) h += '<div class="tip"><h3>' + ui("tip") + '</h3><p>' + esc(tr(t.tip)) + '</p></div>';
@@ -492,7 +503,7 @@
 
   // ---------- FAQ ----------
   var FAQ = window.C3KO_FAQ || [];
-  var openX = lsGet("c3ko.openx.v1") || {}; // which FAQ / words / exam boxes are open (convenience only)
+  var openX = lsGet(K + ".openx.v1") || {}; // which FAQ / words / exam boxes are open (convenience only)
   function xOpen(key) { return openX[key] ? " open" : ""; }
   function renderFaq() {
     var box = document.getElementById("faq");
@@ -504,7 +515,7 @@
         return '<details class="faq-item" data-x="faq-' + f.id + '"' + xOpen("faq-" + f.id) + '><summary>' + esc(L2(f.q)) + '</summary>' +
           '<div class="faq-body"><p>' + esc(L2(f.a)) + '</p>' +
           (f.ex && f.ex.length ? '<ul class="faq-ex">' + f.ex.map(function (e) {
-            return '<li><b lang="cs">' + cell(e[0]) + '</b><span>' + esc(L2(e[1])) + '</span></li>';
+            return '<li><b lang="' + TL + '">' + cell(e[0]) + '</b><span>' + esc(L2(e[1])) + '</span></li>';
           }).join("") + '</ul>' : '') +
           (f.topics && f.topics.length ? '<p class="faq-links">' + esc(ui("faq_related")) + ' ' + f.topics.map(function (id) {
             var t = findTopic(id);
@@ -519,6 +530,7 @@
   function wordsHtml(L) {
     var rows = WORDS[L.id];
     if (!rows || !rows.length) return "";
+    var hideMeaning = !!(ED.gloss && lang !== ED.gloss);
     var groups = Object.keys(WGROUPS).map(function (g) {
       var list = rows.filter(function (r) { return r[5] === g; });
       if (!list.length) return "";
@@ -526,13 +538,13 @@
         var sub = list.filter(function (r) { return !!r[6] === irr; });
         if (!sub.length) return "";
         return '<h4>' + esc(ui(irr ? "irregular" : "regular")) + '</h4><div class="scroll"><table class="words"><thead><tr>' +
-          ["col_inf", "col_ja", "col_oni", "col_past", "col_meaning", "col_note"].map(function (k) { return '<th scope="col">' + esc(ui(k)) + '</th>'; }).join("") +
+          ["col_inf", "col_ja", "col_oni", "col_past", "col_meaning", "col_note"].filter(function (k) { return k !== "col_meaning" || !hideMeaning; }).map(function (k) { return '<th scope="col">' + esc(ui(k)) + '</th>'; }).join("") +
           '</tr></thead><tbody>' + sub.map(function (r) {
-            return '<tr><th scope="row" lang="cs">' + esc(r[0]) + '</th><td lang="cs">' + esc(r[1]) + '</td><td lang="cs">' + esc(r[2]) +
-              '</td><td lang="cs">' + esc(r[3]) + '</td><td>' + esc(L2(r[4])) + '</td><td class="wnote">' + (r[7] ? esc(L2(r[7])) : '') + '</td></tr>';
+            return '<tr><th scope="row" lang="' + TL + '">' + esc(r[0]) + '</th><td lang="' + TL + '">' + esc(r[1]) + '</td><td lang="' + TL + '">' + esc(r[2]) +
+              '</td><td lang="' + TL + '">' + esc(r[3]) + '</td>' + (hideMeaning ? '' : '<td>' + esc(L2(r[4])) + '</td>') + '<td class="wnote">' + (r[7] ? esc(L2(r[7])) : '') + '</td></tr>';
           }).join("") + '</tbody></table></div>';
       };
-      return '<section class="wgroup"><h3 class="wg" lang="cs">' + esc(L2(WGROUPS[g])) + '</h3>' + part(false) + part(true) + '</section>';
+      return '<section class="wgroup"><h3 class="wg" lang="' + TL + '">' + esc(L2(WGROUPS[g])) + '</h3>' + part(false) + part(true) + '</section>';
     }).join("");
     return '<details class="xbox" data-x="words-' + L.id + '"' + xOpen("words-" + L.id) + '><summary><span class="xt">' +
       esc(ui("words_title", { lv: L.id })) + '</span><span class="xn">' + rows.length + '</span></summary>' +
@@ -615,7 +627,7 @@
       var picked = ex.picked[i];
       var state2 = ex.checked ? (picked === q.answer ? " right" : " wrong") : "";
       var t = findTopic(q.skill);
-      return '<li class="question' + state2 + '"><p class="ask">' + esc(L2(q.ask)) + '</p><p class="prompt" lang="cs">' + promptHtml(q.q) + '</p>' +
+      return '<li class="question' + state2 + '"><p class="ask">' + esc(L2(q.ask)) + '</p><p class="prompt" lang="' + TL + '">' + promptHtml(q.q) + '</p>' +
         '<div class="opts" role="group">' + q.opts.map(function (o, j) {
           var cls = ex.checked ? (j === q.answer ? " is-answer" : (j === picked ? " is-wrong" : "")) : "";
           return '<button type="button" class="opt' + cls + '" data-act="exam-pick" data-id="' + L.id + '" data-q="' + i + '" data-v="' + j + '" aria-pressed="' + (picked === j) + '"' + (ex.checked ? ' disabled' : '') + '>' + esc(L2(o)) + '</button>';
@@ -759,6 +771,7 @@
     } else if (act === "lang") {
       lang = b.getAttribute("data-v");
       lsSet(LS_LANG, lang);
+      var lp = document.getElementById("langpick"); if (lp) lp.parentNode.removeChild(lp);
       applyStatic(); renderFaq(); render(); gist.show(); fab();
     } else if (act === "exam-start") {
       var Ls = DATA.levels.filter(function (x) { return x.id === id; })[0];
@@ -806,7 +819,7 @@
     if (!d.getAttribute || !d.getAttribute("data-x")) return;
     var k = d.getAttribute("data-x");
     if (d.open) openX[k] = true; else delete openX[k];
-    lsSet("c3ko.openx.v1", openX);
+    lsSet(K + ".openx.v1", openX);
   }, true);
 
   var noteTimer = {};
@@ -839,6 +852,24 @@
   applyStatic();
   renderFaq();
   render();
+
+  // back to the L4NG app list (only when hosted inside L4NG)
+  var homeA = document.getElementById("home");
+  if (homeA && /\/l4ng\//i.test(location.pathname)) homeA.hidden = false;
+
+  // first visit: ask which language to learn in (both questions shown in their own language)
+  if (!lsGet(LS_LANG)) {
+    var brandH = document.querySelector(".brand h1");
+    var lp = document.createElement("div");
+    lp.className = "langpick"; lp.id = "langpick";
+    lp.setAttribute("role", "dialog"); lp.setAttribute("aria-modal", "true"); lp.setAttribute("aria-label", "Language / Bahasa");
+    lp.innerHTML = '<div class="langpick-box"><h2>' + (brandH ? brandH.innerHTML : "") + '</h2>' +
+      '<button type="button" data-act="lang" data-v="en" lang="en"><b>English</b><span>Do you want to learn in English?</span></button>' +
+      '<button type="button" data-act="lang" data-v="id" lang="id"><b>Bahasa Indonesia</b><span>Atau belajar dalam bahasa Indonesia?</span></button>' +
+      '<p>EN / ID — you can switch any time · bisa diganti kapan saja</p></div>';
+    document.body.appendChild(lp);
+    var firstBtn = lp.querySelector('[data-v="' + lang + '"]'); if (firstBtn) firstBtn.focus();
+  }
 
   if (window.claude) {
     // Running as a claude.ai Artifact: progress syncs through the claude.ai account instead.

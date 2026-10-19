@@ -12,5 +12,6 @@ Free apps for learning languages. No account, no ads, and they work offline once
 | **3NGL** | English grammar, A1–C2, in English or Bahasa Indonesia | https://verkno.github.io/L4NG/3ngl/ |
 | **E5PA** | Spanish grammar, A1–B1, in English or Bahasa Indonesia | https://verkno.github.io/L4NG/e5pa/ |
 | **FR4N** | French grammar, A1–B1, in English or Bahasa Indonesia | https://verkno.github.io/L4NG/fr4n/ |
+| **D3UT** | German grammar, A1–B1, in English or Bahasa Indonesia | https://verkno.github.io/L4NG/d3ut/ |
 
 Each app has its own folder with a README explaining how to use it.

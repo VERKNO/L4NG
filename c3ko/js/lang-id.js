@@ -95,7 +95,12 @@ window.C3KO_LANG.id = {
 "unanswered": "Tidak dijawab",
 "all_right": "Semua benar. Hebat!",
 "skill": "Keterampilan: {t}",
-"exam_none": "Ujian untuk level ini sedang ditulis."
+"exam_none": "Ujian untuk level ini sedang ditulis.",
+"exam_best_time": "Skor terbaik: {b} dari {n} ({p}%) dalam {t}",
+"time_label": "Waktu",
+"time_total": "Total waktu {t} · rata-rata {a} per soal",
+"q_time": "Dijawab dalam {t}",
+"q_time_slowest": "Dijawab dalam {t} (paling lama)"
 },
 "t": {
 "Breakthrough": "Pemula",

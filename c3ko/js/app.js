@@ -60,7 +60,9 @@
     exam_best: "Best score: {b} of {n} ({p}%)", start: "Start exam", check: "Check answers", answered: "{a} of {n} answered",
     score: "{c} of {n} correct ({p}%)", missed: "Skills to review", mark_missed: "Mark these as Learning", marked: "Marked as Learning.",
     new_exam: "New exam", correct_was: "Correct answer: {a}", unanswered: "Not answered", all_right: "Everything right. Well done!",
-    skill: "Skill: {t}", exam_none: "The exam for this level is being written."
+    skill: "Skill: {t}", exam_none: "The exam for this level is being written.",
+    exam_best_time: "Best score: {b} of {n} ({p}%) in {t}", time_label: "Time", time_total: "Total time {t} · {a} per question on average",
+    q_time: "Answered in {t}", q_time_slowest: "Answered in {t} (slowest)"
   };
   var LANGS = window.C3KO_LANG || {};
   var LS_LANG = "c3ko.lang";
@@ -108,7 +110,7 @@
     out.t = Number(raw.t) || 0;
     if (raw.x && typeof raw.x === "object") Object.keys(raw.x).forEach(function (k) {
       var v = raw.x[k];
-      if (v && typeof v.best === "number" && typeof v.total === "number") out.x[k] = { best: v.best, total: v.total, last: Number(v.last) || 0, t: Number(v.t) || 0 };
+      if (v && typeof v.best === "number" && typeof v.total === "number") out.x[k] = { best: v.best, total: v.total, last: Number(v.last) || 0, t: Number(v.t) || 0, time: Number(v.time) || 0, lastTime: Number(v.lastTime) || 0 };
     });
     return out;
   }
@@ -490,8 +492,27 @@
     skills.forEach(add);
     var guard = 0;
     while (qs.length < 10 && guard++ < 200) add(skills[Math.floor(Math.random() * skills.length)]);
-    return { qs: shuffle(qs), picked: [], checked: false };
+    var now = Date.now();
+    return { qs: shuffle(qs), picked: [], checked: false, start: now, last: now, qt: [], end: 0 };
   }
+  // durations: "12 s" under a minute, "4:05" from one minute
+  function dur(ms) {
+    var sec = Math.max(0, Math.round(ms / 1000));
+    if (sec < 60) return sec + " s";
+    var m = Math.floor(sec / 60), r2 = sec % 60;
+    return m + ":" + (r2 < 10 ? "0" : "") + r2;
+  }
+  function elapsed(ex) { return (ex.end || Date.now()) - ex.start; }
+  // live clocks for exams in progress
+  setInterval(function () {
+    Object.keys(exams).forEach(function (lv) {
+      var ex = exams[lv];
+      if (!ex || ex.checked) return;
+      var el = document.querySelector('[data-x="exam-' + lv + '"] .exam-clock');
+      if (el) el.textContent = dur(elapsed(ex));
+    });
+  }, 1000);
+
   function promptHtml(q) {
     return esc(L2(q)).replace(/___/g, '<span class="blank">___</span>').replace(/\{([^}]*)\}/g, '<b class="end">$1</b>');
   }
@@ -505,19 +526,23 @@
     if (!bank) return head + '<p class="xintro">' + esc(ui("exam_none")) + '</p></details>';
     var ex = exams[L.id];
     var h = head + '<p class="xintro">' + esc(ui("exam_intro", { n: n, lv: L.id })) +
-      (best ? ' ' + esc(ui("exam_best", { b: best.best, n: best.total, p: Math.round(100 * best.best / best.total) })) : '') + '</p>';
+      (best ? ' ' + esc(ui(best.time ? "exam_best_time" : "exam_best", { b: best.best, n: best.total, p: Math.round(100 * best.best / best.total), t: dur(best.time) })) : '') + '</p>';
     if (!ex) return h + '<button type="button" class="tool primary" data-act="exam-start" data-id="' + L.id + '">' + esc(ui("start")) + '</button></details>';
     var correct = 0, missed = {};
     ex.qs.forEach(function (q, i) { if (ex.picked[i] === q.answer) correct++; else { missed[q.skill] = true; q.also.forEach(function (s) { missed[s] = true; }); } });
     if (ex.checked) {
       var p = Math.round(100 * correct / ex.qs.length);
       var ms = Object.keys(missed);
+      var total = elapsed(ex);
       h += '<div class="exam-result" role="status"><p class="score">' + esc(ui("score", { c: correct, n: ex.qs.length, p: p })) + '</p>' +
+        '<p class="xintro exam-time">⏱ ' + esc(ui("time_total", { t: dur(total), a: dur(total / ex.qs.length) })) + '</p>' +
         (ms.length ? '<p class="xintro">' + esc(ui("missed")) + ':</p><p class="faq-links">' + ms.map(function (id) {
           var t = findTopic(id); return t ? '<button type="button" class="goto" data-act="goto" data-id="' + id + '">' + esc(t.review ? ui("review_title") : tr(t.title)) + '</button>' : '';
         }).join(" · ") + '</p><button type="button" class="tool" data-act="exam-mark" data-id="' + L.id + '">' + esc(ui("mark_missed")) + '</button>'
           : '<p>' + esc(ui("all_right")) + '</p>') + '</div>';
     }
+    var slowest = -1, slowMs = 0;
+    ex.qt.forEach(function (ms, i) { if (ms > slowMs) { slowMs = ms; slowest = i; } });
     h += '<ol class="questions">' + ex.qs.map(function (q, i) {
       var picked = ex.picked[i];
       var state2 = ex.checked ? (picked === q.answer ? " right" : " wrong") : "";
@@ -528,6 +553,7 @@
           return '<button type="button" class="opt' + cls + '" data-act="exam-pick" data-id="' + L.id + '" data-q="' + i + '" data-v="' + j + '" aria-pressed="' + (picked === j) + '"' + (ex.checked ? ' disabled' : '') + '>' + esc(L2(o)) + '</button>';
         }).join("") + '</div>' +
         (ex.checked ? '<p class="qfoot">' + (picked === undefined ? esc(ui("unanswered")) + ' · ' : '') +
+          (ex.qt[i] ? '<span class="qtime' + (i === slowest ? ' slow' : '') + '">⏱ ' + esc(ui(i === slowest ? "q_time_slowest" : "q_time", { t: dur(ex.qt[i]) })) + '</span> · ' : '') +
           (picked !== q.answer ? esc(ui("correct_was", { a: L2(q.opts[q.answer]) })) + ' · ' : '') +
           (t ? '<button type="button" class="goto" data-act="goto" data-id="' + t.id + '">' + esc(ui("skill", { t: t.review ? ui("review_title") : tr(t.title) })) + '</button>' : '') + '</p>' : '') +
         '</li>';
@@ -535,7 +561,7 @@
     var answered = ex.picked.filter(function (x) { return x !== undefined; }).length;
     h += '<div class="exam-foot">' + (ex.checked
       ? '<button type="button" class="tool primary" data-act="exam-start" data-id="' + L.id + '">' + esc(ui("new_exam")) + '</button>'
-      : '<span class="xintro">' + esc(ui("answered", { a: answered, n: ex.qs.length })) + '</span><button type="button" class="tool primary" data-act="exam-check" data-id="' + L.id + '">' + esc(ui("check")) + '</button>') +
+      : '<span class="xintro"><span class="exam-count">' + esc(ui("answered", { a: answered, n: ex.qs.length })) + '</span> · <span class="exam-clock-wrap">⏱ <span class="exam-clock" role="timer" aria-label="' + esc(ui("time_label")) + '">' + dur(elapsed(ex)) + '</span></span></span><button type="button" class="tool primary" data-act="exam-check" data-id="' + L.id + '">' + esc(ui("check")) + '</button>') +
       '</div>';
     return h + '</details>';
   }
@@ -673,16 +699,22 @@
       var ex = exams[id]; if (!ex || ex.checked) return;
       var qi = Number(b.getAttribute("data-q"));
       ex.picked[qi] = Number(b.getAttribute("data-v"));
+      var tnow = Date.now();
+      ex.qt[qi] = (ex.qt[qi] || 0) + (tnow - ex.last); // time since the previous answer; changing an answer adds more
+      ex.last = tnow;
       b.parentNode.querySelectorAll(".opt").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
-      var cnt = document.querySelector('[data-x="exam-' + id + '"] .exam-foot .xintro');
+      var cnt = document.querySelector('[data-x="exam-' + id + '"] .exam-foot .exam-count');
       if (cnt) cnt.textContent = ui("answered", { a: ex.picked.filter(function (x) { return x !== undefined; }).length, n: ex.qs.length });
     } else if (act === "exam-check") {
       var ex2 = exams[id]; if (!ex2) return;
       ex2.checked = true;
+      ex2.end = Date.now();
+      var took = ex2.end - ex2.start;
       var c = ex2.qs.filter(function (q, i) { return ex2.picked[i] === q.answer; }).length;
       var prev = state.x[id];
-      if (!prev || c / ex2.qs.length > prev.best / prev.total) state.x[id] = { best: c, total: ex2.qs.length, last: c, t: Date.now() };
-      else { prev.last = c; prev.t = Date.now(); }
+      if (!prev || c / ex2.qs.length > prev.best / prev.total || (c / ex2.qs.length === prev.best / prev.total && (!prev.time || took < prev.time)))
+        state.x[id] = { best: c, total: ex2.qs.length, last: c, t: Date.now(), time: took, lastTime: took };
+      else { prev.last = c; prev.t = Date.now(); prev.lastTime = took; }
       save();
       rerenderExam(id);
       var box = document.querySelector('[data-x="exam-' + id + '"] .exam-result');

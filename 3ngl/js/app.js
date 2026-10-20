@@ -546,11 +546,18 @@
 
   // anonymous usage events (GoatCounter, loaded only on the public site by index.html); no personal data
   function track(ev) {
-    var tries = 0;
-    (function go() {
+    var live = /(^|\.)verkno\.github\.io$/.test(location.hostname);
+    if (!live) return;
+    var t1 = 0, t2 = 0;
+    (function own() { // Abacus counters (../stats.js): once
+      var st = window.L4STATS;
+      if (!st) { if (t1++ < 20) setTimeout(own, 500); return; }
+      try { if (/^(open-ui-|ui-first-)/.test(ev)) st.visit(K, ev.replace(/^open-ui-|^ui-first-/, "")); if (!/^open-ui-/.test(ev)) st.event(K, ev); } catch (e) {}
+    })();
+    (function gc() { // GoatCounter (often blocked by privacy filters): once
       var g = window.goatcounter;
-      if (g && g.count) { try { g.count({ path: "/l4ng/" + K + "/event/" + ev, title: ED.name + " " + ev, event: true }); } catch (e) {} }
-      else if (window.goatcounter && tries++ < 20) setTimeout(go, 500);
+      if (!(g && g.count)) { if (t2++ < 20) setTimeout(gc, 500); return; }
+      try { g.count({ path: "/l4ng/" + K + "/event/" + ev, title: ED.name + " " + ev, event: true }); } catch (e) {}
     })();
   }
 

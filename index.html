@@ -91,18 +91,40 @@ if (/(^|\.)verkno\.github\.io$/.test(location.hostname)) { window.goatcounter = 
   <footer>Pick a language to start. Your progress stays on your device unless you turn on sync. · Pilih bahasa untuk mulai. Progres tersimpan di perangkatmu kecuali kamu menyalakan sinkron.</footer>
 </main>
 <script>
-/* public visitor counts from GoatCounter (cached by GoatCounter for up to a few hours); hidden if unavailable */
+/* public visitor counts from GoatCounter (cached by GoatCounter up to a few hours); hidden if unavailable.
+   Add ?check to the address to see what the browser allows (for fixing problems). */
 (function () {
-  if (!/(^|\.)verkno\.github\.io$/.test(location.hostname) || !window.fetch) return;
+  var check = /[?&]check\b/.test(location.search);
+  var live = /(^|\.)verkno\.github\.io$/.test(location.hostname);
+  var lines = [];
+  function note(t) { lines.push(t); if (check) { var el = document.getElementById("gc-check"); if (!el) { el = document.createElement("pre"); el.id = "gc-check"; el.style.cssText = "white-space:pre-wrap;font-size:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:16px"; document.querySelector("main").appendChild(el); } el.textContent = lines.join("\n"); } }
+  if (!live || !window.fetch) { note("not the public site: counter off"); return; }
   var base = "https://l4ng.goatcounter.com/counter/";
-  function get(path, q) { return fetch(base + path + ".json" + (q || "")).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
+  function get(path, q) {
+    return fetch(base + path + ".json" + (q || "")).then(function (r) { note(path + (q || "") + " → HTTP " + r.status); return r.ok ? r.json() : null; })
+      .catch(function (e) { note(path + (q || "") + " → blocked (" + e.message + ")"); return null; });
+  }
+  setTimeout(function () { note("count script loaded: " + (window.goatcounter && typeof window.goatcounter.count === "function" ? "yes (visits are recorded)" : "NO (blocked: visits from this browser are not recorded)")); }, 3000);
   var d = new Date(), pad = function (n) { return (n < 10 ? "0" : "") + n; };
   var today = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   Promise.all([get("TOTAL", "?start=" + today), get("TOTAL")]).then(function (r) {
-    if (!r[1]) return;
-    document.getElementById("st-today").textContent = r[0] ? r[0].count : "0";
-    document.getElementById("st-total").textContent = r[1].count;
-    document.getElementById("stats").hidden = false;
+    if (r[1]) {
+      document.getElementById("st-today").textContent = r[0] ? r[0].count : "0";
+      document.getElementById("st-total").textContent = r[1].count;
+      document.getElementById("stats").hidden = false;
+      return;
+    }
+    // data request refused: try the same numbers as images (no data request needed)
+    var img = new Image();
+    img.onload = function () {
+      var t = document.getElementById("st-today"), a = document.getElementById("st-total");
+      t.textContent = ""; a.textContent = "";
+      var i1 = new Image(); i1.src = base + "TOTAL.svg?no_branding=1&start=" + today; i1.alt = ""; i1.style.height = "1.2em"; t.appendChild(i1);
+      img.style.height = "1.2em"; a.appendChild(img);
+      document.getElementById("stats").hidden = false; note("shown as image instead");
+    };
+    img.onerror = function () { note("counter image blocked too: counts hidden"); };
+    img.src = base + "TOTAL.svg?no_branding=1"; img.alt = "";
   });
   document.querySelectorAll("a.app").forEach(function (a) {
     get(encodeURIComponent("/l4ng/" + a.getAttribute("href"))).then(function (j) {

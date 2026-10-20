@@ -16,4 +16,4 @@ Free apps for learning languages. No account, no ads, and they work offline once
 
 Each app has its own folder with a README explaining how to use it.
 
-The site counts visits anonymously with [GoatCounter](https://www.goatcounter.com) (no cookies, no personal data).
+The site counts visits anonymously (no cookies, no personal data): simple counters on [Abacus](https://abacus.jasoncameron.dev) for the numbers shown on the start page, and [GoatCounter](https://www.goatcounter.com) where the browser allows it. Country is estimated from the device time zone only.

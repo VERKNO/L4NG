@@ -773,8 +773,17 @@
     } else if (act === "expand-all" || act === "collapse-all") {
       open = {};
       if (act === "expand-all") document.querySelectorAll(".topic").forEach(function (li) { open[li.id.slice(2)] = true; });
+      else {
+        // also fold the extra boxes (common confusions, verb lists, exams); an exam in progress stays in memory
+        openX = {}; lsSet(K + ".openx.v1", openX);
+        document.querySelectorAll("details[data-x]").forEach(function (d) { d.open = false; });
+      }
       lsSet(LS_OPEN, Object.keys(open));
       render();
+      if (act === "collapse-all") { // the page got much shorter: jump back to the list so the change is visible (phones)
+        var tb = document.querySelector(".toolbar");
+        if (tb && tb.getBoundingClientRect().top < 0) tb.scrollIntoView({ block: "start" });
+      }
     } else if (act === "synchint-open") {
       var bp = document.getElementById("backup");
       if (bp.hidden) { bp.hidden = false; document.getElementById("backup-text").value = JSON.stringify(state); msg(""); }

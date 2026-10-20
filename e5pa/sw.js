@@ -3,7 +3,7 @@
  * Google Fonts: cached the first time they load online.
  * GitHub API (gist sync): never cached.
  * Bump CACHE when the list of app files changes. */
-var CACHE = "e5pa-v17";
+var CACHE = "e5pa-v18";
 var APP_FILES = [
   "./",
   "index.html",

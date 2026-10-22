@@ -183,7 +183,17 @@
         ["___ stůl je velký.", "Ten", ["Ta", "To", "Ty"]],
         ["___ moře je teplé.", "To", ["Ten", "Ta", "Ty"]],
         ["___ růže je krásná.", "Ta", ["Ten", "To", "Ti"]],
-        ["___ stoly jsou staré.", "Ty", ["Ti", "Ta", "Ten"]]
+        ["___ stoly jsou staré.", "Ty", ["Ti", "Ta", "Ten"]],
+        ["___ knihy jsou nové. (these)", "Tyto", ["Tito", "Tato", "Toto"]],
+        ["___ kluci jsou moji bratři. (these)", "Tito", ["Tyto", "Tato", "Ti tyto"]],
+        ["___ města jsou krásná. (these)", "Tato", ["Tyto", "Tito", "Toto"]],
+        ["Znáš ___ muže? (that)", "toho", ["ten", "ta", "tu"]],
+        ["Vidíš ___ ženy? (those)", "ty", ["ti", "ta", "toho"]],
+        ["Chci ___ jablka. (those)", "ta", ["ty", "ti", "to"]],
+        ["Mluvíme o ___ knize.", "té", ["ta", "tu", "tom"]],
+        ["Jdu s ___ kamarády.", "těmi", ["těch", "ty", "tím"]],
+        ["Nemám rád ___ lidi. (those)", "ty", ["ti", "těch", "těm"]],
+        ["Dám to ___ studentům.", "těm", ["těmi", "ti", "těch"]]
       ]
     },
     "a1-questions": {

@@ -250,9 +250,9 @@ footer { color: var(--muted); font-size: 0.8rem; padding-block: 0 40px; }
 @media (max-width: 640px) { .part { white-space: normal; } }
 
 /* Language switch */
-.brand .lang { margin-left: auto; display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
-.brand .lang button { border: 0; background: none; padding: 5px 12px; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
-.brand .lang button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+.lang { margin-left: auto; display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.lang button { border: 0; background: none; padding: 7px 12px; min-height: 34px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
 @media (max-width: 640px) {
   .toolbar { position: static; }
   .topic { scroll-margin-top: 8px; }
@@ -380,3 +380,8 @@ table.words .wnote { color: var(--muted); font-size: 0.82rem; }
 .synchint > span { flex: 1 1 260px; }
 .synchint .x { border: 0; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; padding: 4px 6px; cursor: pointer; border-radius: 6px; }
 .synchint .x:hover, .synchint .x:focus-visible { color: var(--ink); background: var(--surface-2); outline: none; }
+.toolbar .search { flex: 1 1 96px; }
+.toolbar .wrap { gap: 6px; }
+.toolbar .tool { padding: 8px 9px; }
+.filters button { padding-inline: 9px; }
+.toolbar .lang { flex: none; }

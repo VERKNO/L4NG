@@ -74,7 +74,7 @@ window.C3KO_DATA = {
         {
           id: "a1-accusative",
           title: "Accusative (4. pád)",
-          what: "Case of the direct object. Answers koho? co? (whom? what?). Also after na (for, to a place), pro (for), za (for, in exchange).",
+          what: "Case of the direct object. Answers koho? co? (whom? what?). Also after na (for, to a place), pro (for), za (for, in exchange); with na for a destination it also answers kam? (where to?).",
           pattern: [{"title": "Nouns — singular", "head": ["Gender", "Change", "Example"], "rows": [["Masc. animate", "+ -a", "bratr → bratr{a}"], ["Masc. inanimate", "no change", "stůl → stůl"], ["Feminine -a", "-a → -u", "káva → káv{u}"], ["Feminine -e", "-e → -i", "růže → růž{i}"], ["Fem. consonant", "no change", "obuv → obuv"], ["Neuter", "no change", "víno → víno"]], "note": "Plural accusative isn't covered here; for ten/ta/to see the demonstratives card's \"All cases: plural\" table."}, {"title": "Adjectives — singular", "head": ["Base form", "Accusative", "Used with"], "rows": [["-ý", "-{ého}", "masc. animate: nového kolegu"], ["-á", "-{ou}", "feminine: novou práci"], ["-é, -í", "no change", "neuter, soft adjectives"]]}],
           examples: [["Piju kávu.", "I drink coffee."], ["Mám bratra.", "I have a brother."], ["Sleva na dětskou obuv.", "Discount on children's footwear."], ["Sleva na španělská vína.", "Discount on Spanish wines."]],
           tip: "Only feminine words and masculine animate words visibly change. Everything else looks like the nominative."
@@ -149,7 +149,7 @@ window.C3KO_DATA = {
           id: "a2-cases-overview",
           title: "The seven cases (pády) at a glance",
           what: "Czech teachers number the cases 1–7 and give each a question word pair. Knowing the questions helps you pick the case.",
-          pattern: [{"head": ["No.", "Case", "Question", "Main use", "Prepositions"], "rows": [["1", "nominativ", "kdo? co?", "subject", "—"], ["2", "genitiv", "koho? čeho?", "of, quantity", "z, do, od, u, bez, vedle"], ["3", "dativ", "komu? čemu?", "to someone", "k, proti, kvůli, díky"], ["4", "akuzativ", "koho? co?", "direct object", "na, pro, za, přes"], ["5", "vokativ", "—", "addressing", "—"], ["6", "lokál", "o kom? o čem?", "location, about", "v, na, o, po, při"], ["7", "instrumentál", "kým? čím?", "with, by means of", "s, před, za, nad, pod, mezi"]]}],
+          pattern: [{"head": ["No.", "Case", "Question", "Main use", "Prepositions"], "rows": [["1", "nominativ", "kdo? co?", "subject", "—"], ["2", "genitiv", "koho? čeho?", "of, quantity", "z, do, od, u, bez, vedle"], ["3", "dativ", "komu? čemu?", "to someone", "k, proti, kvůli, díky"], ["4", "akuzativ", "koho? co?", "direct object", "na, pro, za, přes"], ["5", "vokativ", "—", "addressing", "—"], ["6", "lokál", "kde? / o kom? o čem?", "location, about", "v, na, o, po, při"], ["7", "instrumentál", "kým? čím? / kde?", "with, by means of; location", "s, před, za, nad, pod, mezi"]], "note": "The Question column gives each case's fixed textbook pair. Several cases also answer a direction question with specific prepositions: do + genitive and k + dative = kam? (where to?); z + genitive = odkud? (where from?)."}],
           examples: [["Jdu do obchodu (2) pro chleba (4).", "I'm going to the shop for bread."], ["Byl jsem v kině (6) s kamarádem (7).", "I was at the cinema with a friend."]],
           tip: "Many prepositions take a fixed case. Learn them in that pair: bez + 2, k + 3, o + 6, s + 7."
         },
@@ -186,7 +186,7 @@ window.C3KO_DATA = {
         {
           id: "a2-locative",
           title: "Locative (6. pád)",
-          what: "Used only with prepositions: v/ve (in), na (on, at), o (about), po (after, around), při (during). Answers o kom? o čem?",
+          what: "Used only with prepositions: v/ve (in), na (on, at), o (about), po (after, around), při (during). With v/na/po/při for location it answers kde? (where?); with o for a topic it answers o kom? o čem? (about whom/what?). The fixed textbook citation question for this case is o kom? o čem?.",
           pattern: [{"title": "Endings", "head": ["Gender", "Ending", "Example"], "rows": [["Masc. / neuter", "-ě / -e or -u", "v obchod{ě}, na stol{e}, v hotel{u}"], ["Feminine -a", "-ě / -e", "ve škol{e}"], ["Feminine -e", "-i", "na ulic{i}"], ["Plural", "-ech / -ách / -ích", "v obchod{ech}, v hor{ách}"]]}, {"title": "Consonant changes before -e/-ě", "head": ["Change", "Example"], "rows": [["k → c", "Amerika → v Ameri{c}e"], ["h → z", "Praha → v Pra{z}e"], ["r → ř", "sestra → o sest{ř}e"], ["ch → š", "střecha → na stře{š}e"]]}],
           examples: [["Bydlím v Praze.", "I live in Prague."], ["Pracuju na úřadě.", "I work at an office."], ["Mluvíme o práci.", "We're talking about work."]],
           tip: "v = inside a place; na = events, open spaces, institutions and some fixed places (na poště, na nádraží, na koncertě)."
@@ -194,21 +194,21 @@ window.C3KO_DATA = {
         {
           id: "a2-genitive",
           title: "Genitive (2. pád)",
-          what: "'Of', possession, quantities, and after many prepositions: z (from), do (into, to), od (from someone), u (at someone's), bez (without), vedle (next to), během (during), kromě (except).",
+          what: "'Of', possession, quantities, and after many prepositions: z (from), do (into, to), od (from someone), u (at someone's), bez (without), vedle (next to), během (during), kromě (except). The fixed textbook citation question is koho? čeho? (of whom/what?); with z it answers odkud? (where from?) and with do it answers kam? (where to?).",
           pattern: [{"title": "Singular", "head": ["Gender", "Ending", "Example"], "rows": [["Masc. animate", "-a", "bratr{a}"], ["Masc. inanimate", "-u (or -a)", "do obchod{u}, chleb{a}"], ["Feminine -a", "-y", "káva → káv{y}"], ["Feminine -e / consonant", "-e / -i", "růž{e}, kost{i}"], ["Neuter -o / -e", "-a / -e", "vín{a}, moř{e}"]]}, {"title": "When to use", "head": ["Trigger", "Example"], "rows": [["quantity words", "hodně lid{í}, kilo jablek"], ["5 and more", "pět piv"], ["z, do, od, u, bez", "z Prah{y}, do práce"]]}],
           examples: [["Jdu do obchodu.", "I'm going to the shop."], ["Káva bez cukru.", "Coffee without sugar."], ["Kilo jablek.", "A kilo of apples."], ["Auto mého bratra.", "My brother's car."]]
         },
         {
           id: "a2-dative",
           title: "Dative (3. pád)",
-          what: "The person you give, say or show something to. Also after k/ke (towards), proti (against), kvůli (because of), díky (thanks to), and verbs like pomáhat, rozumět, volat, věřit.",
+          what: "The person you give, say or show something to. Also after k/ke (towards), proti (against), kvůli (because of), díky (thanks to), and verbs like pomáhat, rozumět, volat, věřit. The fixed textbook citation question is komu? čemu? (to whom/what?); with k/ke it also answers kam? (where to?).",
           pattern: [{"title": "Singular", "head": ["Gender", "Ending", "Example"], "rows": [["Masc. animate", "-ovi / -i", "bratr{ovi}, muž{i}"], ["Masc. inanimate", "-u", "k obchod{u}"], ["Feminine -a", "-ě / -e", "žen{ě}"], ["Feminine -e / consonant", "-i", "růž{i}, kost{i}"], ["Neuter", "-u / -i", "vín{u}, moř{i}"]], "note": "Verbs with dative: dát, říct, pomáhat, rozumět, volat, věřit, líbit se. For plural dative endings, see \"Plural endings in all cases\" below."}],
           examples: [["Dám to mamince.", "I'll give it to mum."], ["Zavolám ti zítra.", "I'll call you tomorrow."], ["Jdu k doktorovi.", "I'm going to the doctor."]]
         },
         {
           id: "a2-instrumental",
           title: "Instrumental (7. pád)",
-          what: "'With' (s/se), the tool or means of transport, and location with před (in front of), za (behind), nad (above), pod (under), mezi (between). Also after být/stát se for roles.",
+          what: "'With' (s/se), the tool or means of transport, and location with před (in front of), za (behind), nad (above), pod (under), mezi (between). Also after být/stát se for roles. Answers kým? čím? for the 'with / by means of' use, or kde? for the location prepositions.",
           pattern: [{"head": ["Gender", "Ending", "Example"], "rows": [["Masculine / neuter", "-em", "bratr{em}, aut{em}"], ["Feminine -a", "-ou", "žen{ou}"], ["Feminine -e / consonant", "-í", "tramvaj{í}, kost{í}"], ["Plural", "-y / -ami / -emi / -mi", "s kamarád{y}, se žen{ami}"]]}],
           examples: [["Jedu tramvají.", "I'm going by tram."], ["Kafe s mlékem.", "Coffee with milk."], ["Sejdeme se před divadlem.", "Let's meet in front of the theatre."], ["Chci být lékařem.", "I want to be a doctor."]]
         },

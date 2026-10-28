@@ -75,7 +75,7 @@ window.C3KO_DATA = {
           id: "a1-accusative",
           title: "Accusative (4. pád)",
           what: "Case of the direct object. Answers koho? co? (whom? what?). Also after na (for, to a place), pro (for), za (for, in exchange).",
-          pattern: [{"title": "Nouns", "head": ["Gender", "Change", "Example"], "rows": [["Masc. animate", "+ -a", "bratr → bratr{a}"], ["Masc. inanimate", "no change", "stůl → stůl"], ["Feminine -a", "-a → -u", "káva → káv{u}"], ["Feminine -e", "-e → -i", "růže → růž{i}"], ["Fem. consonant", "no change", "obuv → obuv"], ["Neuter", "no change", "víno → víno"]]}, {"title": "Adjectives", "head": ["Base form", "Accusative", "Used with"], "rows": [["-ý", "-{ého}", "masc. animate: nového kolegu"], ["-á", "-{ou}", "feminine: novou práci"], ["-é, -í", "no change", "neuter, soft adjectives"]]}],
+          pattern: [{"title": "Nouns — singular", "head": ["Gender", "Change", "Example"], "rows": [["Masc. animate", "+ -a", "bratr → bratr{a}"], ["Masc. inanimate", "no change", "stůl → stůl"], ["Feminine -a", "-a → -u", "káva → káv{u}"], ["Feminine -e", "-e → -i", "růže → růž{i}"], ["Fem. consonant", "no change", "obuv → obuv"], ["Neuter", "no change", "víno → víno"]], "note": "Plural accusative isn't covered here; for ten/ta/to see the demonstratives card's \"All cases: plural\" table."}, {"title": "Adjectives — singular", "head": ["Base form", "Accusative", "Used with"], "rows": [["-ý", "-{ého}", "masc. animate: nového kolegu"], ["-á", "-{ou}", "feminine: novou práci"], ["-é, -í", "no change", "neuter, soft adjectives"]]}],
           examples: [["Piju kávu.", "I drink coffee."], ["Mám bratra.", "I have a brother."], ["Sleva na dětskou obuv.", "Discount on children's footwear."], ["Sleva na španělská vína.", "Discount on Spanish wines."]],
           tip: "Only feminine words and masculine animate words visibly change. Everything else looks like the nominative."
         },
@@ -216,7 +216,7 @@ window.C3KO_DATA = {
           id: "a2-vocative",
           title: "Vocative (5. pád)",
           what: "Form used when addressing someone directly. Used in speech and emails, and in the polite pane / paní + surname.",
-          pattern: [{"head": ["Type", "Ending", "Example"], "rows": [["Masc. hard", "-e", "pan → pan{e}, Petr → Pet{ře}"], ["Masc. -k / -g / -ch", "-u", "Marek → Mark{u}"], ["Masc. soft", "-i", "Tomáš → Tomáš{i}"], ["Feminine -a", "-o", "Jana → Jan{o}"], ["Others", "no change", "Marie → Marie"]]}],
+          pattern: [{"title": "Singular", "head": ["Type", "Ending", "Example"], "rows": [["Masc. hard", "-e", "pan → pan{e}, Petr → Pet{ře}"], ["Masc. -k / -g / -ch", "-u", "Marek → Mark{u}"], ["Masc. soft", "-i", "Tomáš → Tomáš{i}"], ["Feminine -a", "-o", "Jana → Jan{o}"], ["Others", "no change", "Marie → Marie"]], "note": "Vocative plural is the same as nominative plural for every gender (e.g. páni, ženy, děti)."}],
           examples: [["Dobrý den, pane Nováku.", "Good afternoon, Mr Novák."], ["Ahoj, Petře!", "Hi, Petr!"], ["Děkuju, Jano.", "Thanks, Jana."]]
         },
         {

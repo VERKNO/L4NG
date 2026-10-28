@@ -21,6 +21,7 @@ h1 span { color:var(--red); }
 .pills { display:flex; flex-wrap:wrap; gap:6px; margin:0; padding:0; list-style:none; }
 .pills li { font-size:.8rem; font-weight:500; color:var(--muted); background:var(--chip); border-radius:999px; padding:4px 10px; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:12px; }
+.grid.other-apps { margin-top:20px; }
 a.app { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:14px; text-decoration:none; color:inherit; transition:border-color .15s, transform .15s, box-shadow .15s; }
 a.app:hover, a.app:focus-visible { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 24px -14px rgba(20,30,60,.45); outline:none; }
 .fl { display:grid; place-items:center; width:46px; height:46px; border-radius:12px; background:var(--chip); }
@@ -112,6 +113,13 @@ if (/(^|\.)verkno\.github\.io$/.test(location.hostname)) { window.goatcounter = 
       <span class="fl"><svg class="flag" viewBox="0 0 30 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="30" height="7" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#dd0000"/><rect y="13.33" width="30" height="6.67" fill="#ffce00"/></svg></span>
       <span class="txt"><b>D3U<i>T</i></b><span class="lang">German <span class="sub">· Bahasa Jerman</span></span><span class="visits"></span></span>
       <span class="lv">A1–B1</span>
+    </a>
+  </nav>
+  <nav class="grid other-apps" aria-label="More apps">
+    <a class="app" href="https://verkno.github.io/g4m/">
+      <span class="fl"><svg viewBox="0 0 30 20" width="26" height="18" aria-hidden="true" focusable="false"><rect x="2" y="8" width="2.4" height="4" rx="0.6" fill="var(--accent)"/><rect x="5" y="5" width="2.4" height="10" rx="0.6" fill="var(--accent)"/><rect x="22.6" y="5" width="2.4" height="10" rx="0.6" fill="var(--accent)"/><rect x="25.6" y="8" width="2.4" height="4" rx="0.6" fill="var(--accent)"/><rect x="7.4" y="9" width="15.2" height="2" fill="var(--accent)"/></svg></span>
+      <span class="txt"><b>G4<i>M</i></b><span class="lang">Gym basics <span class="sub">· Dasar-dasar gym</span></span><span class="visits"></span></span>
+      <span class="lv">EN/ID</span>
     </a>
   </nav>
   <details class="usage" id="usage" hidden>

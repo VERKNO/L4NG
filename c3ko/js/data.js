@@ -202,7 +202,7 @@ window.C3KO_DATA = {
           id: "a2-dative",
           title: "Dative (3. pád)",
           what: "The person you give, say or show something to. Also after k/ke (towards), proti (against), kvůli (because of), díky (thanks to), and verbs like pomáhat, rozumět, volat, věřit.",
-          pattern: [{"head": ["Gender", "Ending", "Example"], "rows": [["Masc. animate", "-ovi / -i", "bratr{ovi}, muž{i}"], ["Masc. inanimate", "-u", "k obchod{u}"], ["Feminine -a", "-ě / -e", "žen{ě}"], ["Feminine -e / consonant", "-i", "růž{i}, kost{i}"], ["Neuter", "-u / -i", "vín{u}, moř{i}"]], "note": "Verbs with dative: dát, říct, pomáhat, rozumět, volat, věřit, líbit se."}],
+          pattern: [{"title": "Singular", "head": ["Gender", "Ending", "Example"], "rows": [["Masc. animate", "-ovi / -i", "bratr{ovi}, muž{i}"], ["Masc. inanimate", "-u", "k obchod{u}"], ["Feminine -a", "-ě / -e", "žen{ě}"], ["Feminine -e / consonant", "-i", "růž{i}, kost{i}"], ["Neuter", "-u / -i", "vín{u}, moř{i}"]], "note": "Verbs with dative: dát, říct, pomáhat, rozumět, volat, věřit, líbit se. For plural dative endings, see \"Plural endings in all cases\" below."}],
           examples: [["Dám to mamince.", "I'll give it to mum."], ["Zavolám ti zítra.", "I'll call you tomorrow."], ["Jdu k doktorovi.", "I'm going to the doctor."]]
         },
         {

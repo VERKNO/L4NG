@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>This app has moved</title>
+  <meta http-equiv="refresh" content="0; url=https://lang.rkp.or.id/e5pa/" />
+  <link rel="canonical" href="https://lang.rkp.or.id/e5pa/" />
+  <meta name="robots" content="noindex" />
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; min-height: 100vh;
+           align-items: center; justify-content: center; margin: 0; color: #334155;
+           text-align: center; padding: 24px; }
+    a { color: #5b6ee8; font-weight: 600; }
+    p { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <div>
+    <p>This app has moved to a new home — access it <a href="https://lang.rkp.or.id/e5pa/">here</a>.</p>
+    <p>Aplikasi ini pindah ke rumah baru, silakan akses <a href="https://lang.rkp.or.id/e5pa/">di sini</a>.</p>
+  </div>
+  <script>
+    // If an old service worker from this app is still installed in this
+    // browser, this page may not even load until that worker checks for an
+    // update (see sw.js in this same folder) and hands control back. Once
+    // we do get to run, clean up anything left over and go to the new home.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      });
+    }
+    if (window.caches) {
+      caches.keys().then(function (keys) {
+        keys.forEach(function (k) { caches.delete(k); });
+      });
+    }
+    location.replace("https://lang.rkp.or.id/e5pa/");
+  </script>
+</body>
+</html>
